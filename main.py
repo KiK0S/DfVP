@@ -49,19 +49,30 @@ while 1:
 	if move_left:
 		if dx > -5:
 			dx -= 0.5
+	else: 
+		if dx < 0:
+			dx += 0.5 
 	
 	if move_right:
 		if dx < 5:
 			dx += 0.5
+	else:
+		if dx > 0:
+			dx -= 0.5
 
 	if move_up:
 		if dy > -5:
 			dy -= 0.5
+	else:
+		if dy < 0:
+		   	dy += 0.5
+
 	if move_down:
 		if dy < 5:
 			dy += 0.5
-   		
-
+	else:
+   		if dy > 0:
+   			dy -= 0.5
 
 	g.background.fill((255, 255, 255))
 	g.surface.blit(g.background, (0, 0))
@@ -69,8 +80,6 @@ while 1:
 	fig.y += dy
 	g.surface.blit(fig.surface, (fig.x, fig.y))
 	pygame.display.flip()
-
-	
 
 	time.sleep(1 / FPS)
 	
