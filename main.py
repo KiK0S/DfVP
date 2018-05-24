@@ -7,7 +7,7 @@ import triangle
 import time
 
 g = game.Game(0, 640, 480)
-fig = triangle.Object(50, 50)
+fig = triangle.Object(50)
 end = False
 dx = 0
 dy = 0
@@ -35,7 +35,7 @@ while 1:
 				move_left = True
 			if event.key == pygame.K_RIGHT:
 				move_right = True
-		
+		                      
 		if event.type == pygame.KEYUP:
 			if event.key == pygame.K_DOWN:
 				move_down = False
@@ -73,6 +73,10 @@ while 1:
 	else:
    		if dy > 0:
    			dy -= 0.5
+	if dx == 0 and dy == 0:
+		pass
+	else:
+		fig.rotate(math.atan2(dy, dx) - math.pi / 2)
 
 	g.background.fill((255, 255, 255))
 	g.surface.blit(g.background, (0, 0))
