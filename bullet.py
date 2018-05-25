@@ -3,8 +3,8 @@ import math
 class Object:
 	
 	def __init__(self, a, x, y, alpha):
-		self.surface = pygame.Surface((a, a))
-		self.surface.fill((255, 255, 255))
+		self.surface = pygame.Surface((a, a), pygame.SRCALPHA, 32)
+		self.surface = self.surface.convert_alpha()	
 		self.x = x
 		self.y = y
 		self.size = a // 2

@@ -7,9 +7,11 @@ import player
 import time
 import bullet
 import enemy
-
-g = game.Game(640, 480)
-fig = player.Object(50, 100, 100)
+import tower
+import player_image
+g = game.Game(1000, 1000)
+tw = tower.Object(g)
+fig = player.Object(0, 0, 50, 'C:\\Users\KiKoS\Desktop\DfVP\icon.png')
 dx = 0
 dy = 0
 move_right = False
@@ -17,46 +19,54 @@ move_left = False
 move_up = False
 move_down = False
 
-FPS = 30
+FPS = 40
 bullets = []
 enemies = []
-while 1: 	
+current_rate = 0
+while 1:	
+	current_rate += 1
+	if current_rate % FPS == 0:
+		dist = g.width * 2
+		dist_x = random.randint(-dist, dist)
+		minus = 1
+		if random.randint(0, 1) == 1:
+			minus = -1
+		_new = enemy.Object(dist_x, minus * math.sqrt(dist * dist - dist_x * dist_x), 40, tw)
+		enemies.append(_new) 
 	for event in pygame.event.get():
 		if event.type == pygame.QUIT:
 			pygame.quit()
-			end = True
+			exit()
 		if event.type == pygame.KEYDOWN:
 			if event.key == pygame.K_ESCAPE:
+				print('Goodbye')
 				pygame.quit()
 				exit()
-			if event.key == pygame.K_DOWN:
-				move_down = True
-			if event.key == pygame.K_UP:
-				move_up = True
-			if event.key == pygame.K_LEFT:
-				move_left = True
-			if event.key == pygame.K_RIGHT:
-				move_right = True
-			if event.key == pygame.K_SPACE:
+			if event.key == pygame.K_l:
 				if dx == 0 and dy == 0:
 					pass
 				else:
 					_new = bullet.Object(10, fig.x + fig.center[0], fig.y + fig.center[1], math.atan2(dy, dx))
 					bullets.append(_new)
-			if event.key == pygame.K_1:
-				_new = enemy.Object(random.randint(0, g.width), random.randint(0, g.height), 40)
-				enemies.append(_new)   
+			if event.key == pygame.K_s:
+				move_down = True
+			if event.key == pygame.K_w:
+				move_up = True
+			if event.key == pygame.K_a:
+				move_left = True
+			if event.key == pygame.K_d:
+				move_right = True
+			  
 				                    
 		if event.type == pygame.KEYUP:
-			if event.key == pygame.K_DOWN:
+			if event.key == pygame.K_s:
 				move_down = False
-			if event.key == pygame.K_UP:
+			if event.key == pygame.K_w:
 				move_up = False
-			if event.key == pygame.K_LEFT:
+			if event.key == pygame.K_a:
 				move_left = False
-			if event.key == pygame.K_RIGHT:
+			if event.key == pygame.K_d:
 				move_right = False
-
 	if move_left:
 		if dx > -5:
 			dx -= 0.5                    
@@ -84,32 +94,49 @@ while 1:
 	else:
    		if dy > 0:
    			dy -= 0.5
+
 	if dx == 0 and dy == 0:
 		pass
 	else:
-		fig.rotate(math.atan2(dy, dx) - math.pi / 2)
-	
+		fig.rotate(math.atan2(-dy, dx))
 	g.background.fill((255, 255, 255))
-	g.surface.blit(g.background, (0, 0))	
+	g.surface.blit(g.background, (0, 0))    	
 	iter = 0
 	while iter < len(enemies):
 		ok = True
-		for b in bullets:
-			if math.hypot(b.center[0] - enemies[iter].center[0], b.center[1] - enemies[iter].center[1]) <= b.size + enemies[iter].size:
+		enemies[iter].x += enemies[iter].dx
+		enemies[iter].y += enemies[iter].dy
+		enemies[iter].center[0] += enemies[iter].dx
+		enemies[iter].center[1] += enemies[iter].dy
+		iter_1 = 0
+		while iter_1 < len(bullets):
+			b = bullets[iter_1]
+			if math.hypot(b.center[0] - enemies[iter].center[0], b.center[1] - enemies[iter].center[1]) < b.size + enemies[iter].size:
 				del enemies[iter]
+				del bullets[iter_1]
 				iter -= 1
 				ok = False
 				break
+			iter_1 += 1
 		if ok:
 			g.surface.blit(enemies[iter].surface, (enemies[iter].x, enemies[iter].y))
 		iter += 1
-	
+	iter = 0
+	for e in enemies:
+		if math.hypot(e.center[0] - tw.center[0], e.center[1] - tw.center[1])  + 10 < e.size + tw.size:
+			del enemies[iter]
+			#print('Game Over')
+			#pygame.quit()
+			#exit()
+			break
+		iter += 1
+
 	fig.x += dx
-	fig.y += dy
+	fig.y += dy  
 	g.surface.blit(fig.surface, (fig.x, fig.y))
 	iter = 0
 	while iter < len(bullets):
-		if bullets[iter].x < 0 or bullets[iter].y < 0 or bullets[iter].x >= g.width or bullets[iter].y >= g.width:
+		if bullets[iter].x < 0 or bullets[iter].y < 0 or bullets[iter].x >= g.width or bullets[iter].y >= g.height:
 			del bullets[iter]
 			iter -= 1
 		else:
@@ -119,9 +146,9 @@ while 1:
 			bullets[iter].center[1] += bullets[iter].dy
 			g.surface.blit(bullets[iter].surface, (bullets[iter].x, bullets[iter].y))
 		iter += 1
-			
-
-
+				
+	g.surface.blit(tw.surface, (tw.x, tw.y))
+		
 	pygame.display.flip()
 
 	time.sleep(1 / FPS)
