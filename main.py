@@ -8,156 +8,63 @@ import time
 import bullet
 import enemy
 import tower        
+import constants 
+import socket
 
-g = game.Game(600, 600)
-fig = player.Object(0, 0, 50, 'C:\\Users\\KiKoS\\Desktop\\DfVP\\player.png')
+port = 9090
+sock = socket.socket()
+sock.connect(('localhost', port))
+g = game.Game(constants.W, constants.H)
 
-tw = tower.Object(g, 'C:\\Users\\KiKoS\\Desktop\\DfVP\\tower.png')         
-dx = 0
-dy = 0
-move_right = False
-move_left = False
-move_up = False
-move_down = False
-
-score = 0
-FPS = 30
-bullets = []
-enemies = []
-current_rate = 0
 while 1:	
-	current_rate += 1
-	if current_rate % FPS == 0:
-		dist = g.width * 2
-		dist_x = random.randint(-dist, dist)
-		minus = 1
-		if random.randint(0, 1) == 1:
-			minus = -1
-		_new = enemy.Object(dist_x, minus * math.sqrt(dist * dist - dist_x * dist_x), 40, tw)
-		enemies.append(_new) 
+	req = ''
+	print('making query')
 	for event in pygame.event.get():
-		if event.type == pygame.QUIT:
-			pygame.quit()
-			exit()
-		if event.type == pygame.KEYDOWN:
-			if event.key == pygame.K_ESCAPE:
-				print('Goodbye')
-				pygame.quit()
-				exit()
-			if event.key == pygame.K_l:
-				if dx == 0 and dy == 0:
-					pass
-				else:
-					_new = bullet.Object(10, fig.x + fig.center[0], fig.y + fig.center[1], math.atan2(dy, dx))
-					bullets.append(_new)
-			if event.key == pygame.K_s:
-				move_down = True
-			if event.key == pygame.K_w:
-				move_up = True
-			if event.key == pygame.K_a:
-				move_left = True
-			if event.key == pygame.K_d:
-				move_right = True
-			  
-				                    
-		if event.type == pygame.KEYUP:
-			if event.key == pygame.K_s:
-				move_down = False
-			if event.key == pygame.K_w:
-				move_up = False
-			if event.key == pygame.K_a:
-				move_left = False
-			if event.key == pygame.K_d:
-				move_right = False
-	if move_left:
-		if dx > -5:
-			dx -= 0.5                    
-	else: 
-		if dx < 0:
-			dx += 0.75 
-	
-	if move_right:
-		if dx < 5:
-			dx += 0.5
-	else:
-		if dx > 0:
-			dx -= 0.75
-
-	if move_up:
-		if dy > -5:
-			dy -= 0.5
-	else:
-		if dy < 0:
-		   	dy += 0.75
-
-	if move_down:
-		if dy < 5:
-			dy += 0.5
-	else:
-   		if dy > 0:
-   			dy -= 0.75
-	cur_dx, cur_dy = 0, 0
-	if abs(dy) <= 1:
-		cur_dy = 0
-	else:
-		cur_dy = dy
-	if abs(dx) <= 1:
-		cur_dx = 0
-	else:
-		cur_dx = dx
-
-	if cur_dx == 0 and cur_dy == 0:
-		pass
-	else:
-		fig.rotate(math.atan2(-cur_dy, cur_dx))
-	g.background.fill((255, 255, 255))
-	g.surface.blit(g.background, (0, 0))    	
-	iter = 0
-	while iter < len(enemies):
-		ok = True
-		enemies[iter].x += enemies[iter].dx
-		enemies[iter].y += enemies[iter].dy
-		iter_1 = 0
-		while iter_1 < len(bullets):
-			b = bullets[iter_1]
-			if math.hypot(b.x + b.center[0] - enemies[iter].x - enemies[iter].center[0], b.y + b.center[1] - enemies[iter].y - enemies[iter].center[1]) < b.size + enemies[iter].size:
-				del enemies[iter]
-				del bullets[iter_1]
-				iter -= 1
-				ok = False
-				score += 1
-				break
-			iter_1 += 1
-		if ok:
-			g.surface.blit(enemies[iter].surface, (enemies[iter].x, enemies[iter].y))
-		iter += 1
-	iter = 0
-	for e in enemies:
-		if math.hypot(e.x + e.center[0] - tw.x - tw.center[0], e.y + e.center[1] - tw.y - tw.center[1]) < e.size + tw.size - 10:
-			del enemies[iter]
-			time.sleep(1)
-			print('Game Over')
-			pygame.quit()
-			exit()
-			break
-		iter += 1
-
-	fig.x += cur_dx
-	fig.y += cur_dy  
-	g.surface.blit(fig.surface, (fig.x, fig.y))
-	iter = 0
-	while iter < len(bullets):
-		if bullets[iter].x < 0 or bullets[iter].y < 0 or bullets[iter].x >= g.width or bullets[iter].y >= g.height:
-			del bullets[iter]
-			iter -= 1
+		q = str(port - 9090) + ';' + str(event.type) + ';'
+		if event.type == pygame.KEYDOWN or event.type == pygame.KEYUP:
+			q += str(event.key)
 		else:
-			bullets[iter].x += bullets[iter].dx
-			bullets[iter].y += bullets[iter].dy
-			g.surface.blit(bullets[iter].surface, (bullets[iter].x, bullets[iter].y))
-		iter += 1
-				
+			q += '0'
+		q += '\n'
+		req += q
+	sock.send(req.encode('ascii'))
+	
+	figures = []
+	enemies = []
+	bullets = []
+	tw = tower.Object(constants.W / 2, constants.H / 2, 'C:\\Users\\KiKoS\\Desktop\\DfVP\\tower.png')
+	print('getting query')
+	resp = sock.recv(1024).decode('ascii')
+	print('got query')
+	if not resp == '':
+		resp = resp.split('\n')
+		print('process query')
+		for s in resp:
+			#print(s)
+			q = s.split(';')
+			if q[0] == 'player':
+				_new = player.Object(float(q[1]), float(q[2]), 'C:\\Users\\KiKoS\\Desktop\\DfVP\\player.png')
+				_new.rotate(float(q[3]))
+				figures.append(_new)
+			if q[0] == 'tower':
+				_new = tower.Object(float(q[1]), float(q[2]), 'C:\\Users\\KiKoS\\Desktop\\DfVP\\tower.png')
+				tw = _new
+			if q[0] == 'bullet':
+				_new = bullet.Object(float(q[1]), float(q[2]), tw, 'C:\\Users\\KiKoS\\Desktop\\DfVP\\bullet.png')
+				bullets.append(_new)
+			if q[0] == 'enemy':
+				_new = enemy.Ogject(float(q[1]), float(q[2]), 'C:\\Users\\KiKoS\\Desktop\\DfVP\\enemy.png')
+				enemies.append(_new) 		
+	print('draw')
+	g.surface.fill((255, 255, 255))
+	for fig in figures:
+		g.surface.blit(fig.surface, (fig.x, fig.y))
+	for b in bullets:
+		g.surface.blit(b.surface, (b.x, b.y))
+	for e in enemies:
+		g.surface.blit(e.surface, (e.x, e.y))
 	g.surface.blit(tw.surface, (tw.x, tw.y))
-	pygame.display.set_caption('Score: ' + str(score))	
+	#pygame.display.set_caption('Score: ' + str(score))	
 	pygame.display.flip()
 
-	time.sleep(1 / FPS)
+	time.sleep(1 / constants.FPS)
