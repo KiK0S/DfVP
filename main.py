@@ -8,9 +8,11 @@ import time
 import bullet
 import enemy
 import tower        
+
 g = game.Game(600, 600)
-tw = tower.Object(g, 'C:\\Users\\KiKoS\\Desktop\\DfVP\\tower.png')
 fig = player.Object(0, 0, 50, 'C:\\Users\\KiKoS\\Desktop\\DfVP\\player.png')
+
+tw = tower.Object(g, 'C:\\Users\\KiKoS\\Desktop\\DfVP\\tower.png')         
 dx = 0
 dy = 0
 move_right = False
@@ -72,33 +74,42 @@ while 1:
 			dx -= 0.5                    
 	else: 
 		if dx < 0:
-			dx += 0.5 
+			dx += 0.75 
 	
 	if move_right:
 		if dx < 5:
 			dx += 0.5
 	else:
 		if dx > 0:
-			dx -= 0.5
+			dx -= 0.75
 
 	if move_up:
 		if dy > -5:
 			dy -= 0.5
 	else:
 		if dy < 0:
-		   	dy += 0.5
+		   	dy += 0.75
 
 	if move_down:
 		if dy < 5:
 			dy += 0.5
 	else:
    		if dy > 0:
-   			dy -= 0.5
+   			dy -= 0.75
+	cur_dx, cur_dy = 0, 0
+	if abs(dy) <= 1:
+		cur_dy = 0
+	else:
+		cur_dy = dy
+	if abs(dx) <= 1:
+		cur_dx = 0
+	else:
+		cur_dx = dx
 
-	if dx == 0 and dy == 0:
+	if cur_dx == 0 and cur_dy == 0:
 		pass
 	else:
-		fig.rotate(math.atan2(-dy, dx))
+		fig.rotate(math.atan2(-cur_dy, cur_dx))
 	g.background.fill((255, 255, 255))
 	g.surface.blit(g.background, (0, 0))    	
 	iter = 0
@@ -124,14 +135,15 @@ while 1:
 	for e in enemies:
 		if math.hypot(e.x + e.center[0] - tw.x - tw.center[0], e.y + e.center[1] - tw.y - tw.center[1]) < e.size + tw.size - 10:
 			del enemies[iter]
+			time.sleep(1)
 			print('Game Over')
 			pygame.quit()
 			exit()
 			break
 		iter += 1
 
-	fig.x += dx
-	fig.y += dy  
+	fig.x += cur_dx
+	fig.y += cur_dy  
 	g.surface.blit(fig.surface, (fig.x, fig.y))
 	iter = 0
 	while iter < len(bullets):
