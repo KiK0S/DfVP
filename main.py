@@ -7,11 +7,10 @@ import player
 import time
 import bullet
 import enemy
-import tower
-import player_image
-g = game.Game(1000, 1000)
-tw = tower.Object(g)
-fig = player.Object(0, 0, 50, 'C:\\Users\KiKoS\Desktop\DfVP\icon.png')
+import tower        
+g = game.Game(600, 600)
+tw = tower.Object(g, 'C:\\Users\\KiKoS\\Desktop\\DfVP\\tower.png')
+fig = player.Object(0, 0, 50, 'C:\\Users\\KiKoS\\Desktop\\DfVP\\player.png')
 dx = 0
 dy = 0
 move_right = False
@@ -19,7 +18,8 @@ move_left = False
 move_up = False
 move_down = False
 
-FPS = 40
+score = 0
+FPS = 30
 bullets = []
 enemies = []
 current_rate = 0
@@ -106,16 +106,15 @@ while 1:
 		ok = True
 		enemies[iter].x += enemies[iter].dx
 		enemies[iter].y += enemies[iter].dy
-		enemies[iter].center[0] += enemies[iter].dx
-		enemies[iter].center[1] += enemies[iter].dy
 		iter_1 = 0
 		while iter_1 < len(bullets):
 			b = bullets[iter_1]
-			if math.hypot(b.center[0] - enemies[iter].center[0], b.center[1] - enemies[iter].center[1]) < b.size + enemies[iter].size:
+			if math.hypot(b.x + b.center[0] - enemies[iter].x - enemies[iter].center[0], b.y + b.center[1] - enemies[iter].y - enemies[iter].center[1]) < b.size + enemies[iter].size:
 				del enemies[iter]
 				del bullets[iter_1]
 				iter -= 1
 				ok = False
+				score += 1
 				break
 			iter_1 += 1
 		if ok:
@@ -123,11 +122,11 @@ while 1:
 		iter += 1
 	iter = 0
 	for e in enemies:
-		if math.hypot(e.center[0] - tw.center[0], e.center[1] - tw.center[1])  + 10 < e.size + tw.size:
+		if math.hypot(e.x + e.center[0] - tw.x - tw.center[0], e.y + e.center[1] - tw.y - tw.center[1]) < e.size + tw.size - 10:
 			del enemies[iter]
-			#print('Game Over')
-			#pygame.quit()
-			#exit()
+			print('Game Over')
+			pygame.quit()
+			exit()
 			break
 		iter += 1
 
@@ -142,13 +141,11 @@ while 1:
 		else:
 			bullets[iter].x += bullets[iter].dx
 			bullets[iter].y += bullets[iter].dy
-			bullets[iter].center[0] += bullets[iter].dx
-			bullets[iter].center[1] += bullets[iter].dy
 			g.surface.blit(bullets[iter].surface, (bullets[iter].x, bullets[iter].y))
 		iter += 1
 				
 	g.surface.blit(tw.surface, (tw.x, tw.y))
-		
+	pygame.display.set_caption('Score: ' + str(score))	
 	pygame.display.flip()
 
 	time.sleep(1 / FPS)
