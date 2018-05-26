@@ -9,6 +9,7 @@ class Object:
 		self.x = x
 		self.y = y
 		self.size = a // 2
+		self.alpha = alpha
 		self.speed = constants.BULLET_SPEED
 		self.center = [a//2, a//2]
 		self.dx = self.speed * math.cos(alpha)

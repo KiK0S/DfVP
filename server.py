@@ -15,7 +15,7 @@ hand = handler.Object()
 data = ''    
 while True:
     for conn in conns:
-    	data = conn.recv(8192).decode('ascii')
+    	data = conn.recv(1024).decode('ascii')
     	if not data == '\n' and not data == '': 
     		for s in data.split('\n'):
     			if s == constants.STR_K:
