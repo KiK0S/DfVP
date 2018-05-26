@@ -2,12 +2,12 @@ import socket
 import handler
 import time
 import constants
-sock = socket.socket()
 num_players = int(input())
-ports = range(9090, 9090 + num_players, 1)
+ports = range(9090, 9090 + num_players)
 conns = []
 for port in ports:
-	sock.bind(('localhost', int(port)))
+	sock = socket.socket()
+	sock.bind(('localhost', port))
 	sock.listen(1)
 	conn = sock.accept()[0]
 	conns.append(conn)
