@@ -7,6 +7,7 @@ import math
 import random
 import constants
 import time
+
 class Object:
 	
 	def __init__(self):
@@ -151,10 +152,11 @@ class Object:
 	def get(self):
 		ans = ''
 		for fig in self.figures:
-			ans += 'player;' + str(fig.x) + ';' + str(fig.y) + ';' + str(fig.alpha) + '\n'
+			ans += 'player;' + str(int(fig.x)) + ';' + str(int(fig.y)) + ';' + str(float(fig.alpha)) + '\n'
 		for b in self.bullets:
-			ans += 'bullet;' + str(b.x) + ';' + str(b.y) + '\n'
+			ans += 'bullet;' + str(int(b.x)) + ';' + str(int(b.y)) + '\n'
 		for e in self.enemies:
-			ans += 'enemy;' + str(e.x) + ';' + str(e.y) + '\n';
-		ans += 'tower;' + str(self.tw.w) + ';' + str(self.tw.h) + '\n'
+			ans += 'enemy;' + str(int(e.x)) + ';' + str(int(e.y)) + '\n';
+		ans += 'tower;' + str(int(self.tw.w)) + ';' + str(int(self.tw.h)) + '\n'
+		ans += 'score;' + str(int(self.score)) + '\n'
 		return ans

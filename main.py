@@ -40,6 +40,8 @@ while 1:
 		if s == 'kek':
 			break
 		q = s.split(';')
+		if q[0] == 'score':
+			pygame.display.set_caption('Score ' + q[1])
 		if q[0] == 'player':
 			if len(q) < 4:
 				print('wrong query:', q)
