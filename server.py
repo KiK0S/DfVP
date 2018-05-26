@@ -30,6 +30,7 @@ while True:
     hand.update()
     for conn in conns:
     	conn.send((hand.get() + constants.STR_K).encode('ascii'))
+    hand.clear()
     time.sleep(1 / constants.FPS)
 	
 conn.close()

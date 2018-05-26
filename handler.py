@@ -120,6 +120,7 @@ class Object:
 			ans += constants.STR_B + ';' +  str(int(b.x)) + ';' + str(int(b.y)) + ';' + str(float(int(b.alpha * 1000) / 1000)) + '\n'
 		for e in self.enemies:
 			ans += constants.STR_E + ';' + str(int(e[0])) + ';' + str(int(e[1])) + '\n'
+		return ans
+	def clear(self):
 		del self.enemies[:]
 		del self.bullets[:]
-		return ans
