@@ -6,6 +6,7 @@ import tower
 import math
 import random
 import constants
+import time
 class Object:
 	
 	def __init__(self):
