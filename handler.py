@@ -149,14 +149,15 @@ class Object:
 				self.bullets[iter].x += self.bullets[iter].dx
 				self.bullets[iter].y += self.bullets[iter].dy
 			iter += 1
+
 	def get(self):
 		ans = ''
 		for fig in self.figures:
-			ans += 'player;' + str(int(fig.x)) + ';' + str(int(fig.y)) + ';' + str(float(fig.alpha)) + '\n'
+			ans += constants.STR_P + ';' + str(int(fig.x)) + ';' + str(int(fig.y)) + ';' + str(float(int(fig.alpha * 1000) / 1000)) + '\n'
 		for b in self.bullets:
-			ans += 'bullet;' + str(int(b.x)) + ';' + str(int(b.y)) + '\n'
+			ans += constants.STR_B + ';' +  str(int(b.x)) + ';' + str(int(b.y)) + '\n'
 		for e in self.enemies:
-			ans += 'enemy;' + str(int(e.x)) + ';' + str(int(e.y)) + '\n';
-		ans += 'tower;' + str(int(self.tw.w)) + ';' + str(int(self.tw.h)) + '\n'
-		ans += 'score;' + str(int(self.score)) + '\n'
+			ans += constants.STR_E + ';' + str(int(e.x)) + ';' + str(int(e.y)) + '\n';
+		ans += constants.STR_T + ';' + str(int(self.tw.w)) + ';' + str(int(self.tw.h)) + '\n'
+		ans += constants.STR_S + ';' + str(int(self.score)) + '\n'
 		return ans

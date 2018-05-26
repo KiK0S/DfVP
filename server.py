@@ -18,14 +18,14 @@ while True:
     	data = conn.recv(8192).decode('ascii')
     	if not data == '\n' and not data == '': 
     		for s in data.split('\n'):
-    			if s == 'kek':
+    			if s == constants.STR_K:
     				break
     			#print(s)	
     			a, b, c = s.split(';')
     			hand.handle(a, b, c)
     hand.update()
     for conn in conns:
-    	conn.send((hand.get() + 'kek').encode('ascii'))
+    	conn.send((hand.get() + constants.STR_K).encode('ascii'))
     time.sleep(1 / constants.FPS)
 	
 conn.close()

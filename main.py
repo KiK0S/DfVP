@@ -27,7 +27,7 @@ while 1:
 			q += '0'
 		q += '\n'
 		req += q
-	req += 'kek'
+	req += constants.STR_K
 	sock.send(req.encode('ascii'))
 	
 	figures = []
@@ -37,12 +37,12 @@ while 1:
 	resp = sock.recv(8192).decode('ascii')
 	resp = resp.split('\n')
 	for s in resp:
-		if s == 'kek':
+		if s == constants.STR_K:
 			break
 		q = s.split(';')
-		if q[0] == 'score':
+		if q[0] == constants.STR_S:
 			pygame.display.set_caption('Score ' + q[1])
-		if q[0] == 'player':
+		if q[0] == constants.STR_P:
 			if len(q) < 4:
 				print('wrong query:', q)
 				print(resp)
@@ -50,21 +50,21 @@ while 1:
 				_new = player.Object(float(q[1]), float(q[2]), constants.PREFIX + '\\player.png')
 				_new.rotate(float(q[3]))
 				figures.append(_new)
-		if q[0] == 'tower':
+		if q[0] == constants.STR_T:
 			if len(q) < 3:
 				print('wrong query:', q)
 				print(resp)
 			else:
 				_new = tower.Object(float(q[1]), float(q[2]), constants.PREFIX + '\\tower.png')
 				tw = _new
-		if q[0] == 'bullet':
+		if q[0] == constants.STR_B:
 			if len(q) < 3:
 				print('wrong query:', q)
 				print(resp)
 			else:
 				_new = bullet.Object(float(q[1]), float(q[2]), constants.PREFIX + '\\bullet.png')
 				bullets.append(_new)
-		if q[0] == 'enemy':
+		if q[0] == constants.STR_E:
 			if len(q) < 3:
 				print('wrong query:', q)
 				print(resp)
