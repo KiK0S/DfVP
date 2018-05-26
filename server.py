@@ -7,9 +7,13 @@ ports = range(9090, 9090 + num_players)
 conns = []
 for port in ports:
 	sock = socket.socket()
+	print('binding')
 	sock.bind(('', port))
+	sock.settimeout(None)
 	sock.listen(1)
+	print('accepting')
 	conn = sock.accept()[0]
+	print('OK')
 	conns.append(conn)
 hand = handler.Object()
 data = ''    

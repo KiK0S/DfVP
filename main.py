@@ -14,6 +14,7 @@ import sys
 port = int(sys.argv[2])
 adress = sys.argv[1]
 sock = socket.socket()
+sock.settimeout(None)
 sock.connect((adress, port))
 g = game.Game(constants.W, constants.H)
 tw = tower.Object(constants.W, constants.H, constants.PREFIX + '\\tower.png')
