@@ -3,7 +3,7 @@ import math
 import constants
 class Object:
 	
-	def __init__(self, x, y, tw, name, a = 40):         
+	def __init__(self, x, y, tw, name='', a = 40):         
 		if name != '':
 			self.surface = pygame.image.load(name).convert_alpha()
 		self.x = x               

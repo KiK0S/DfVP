@@ -12,7 +12,7 @@ class Object:
 		self.figures = []
 		self.bullets = []
 		self.enemies = []
-		self.tw = tower.Object(constants.W, constants.H, '') 	
+		self.tw = tower.Object(constants.W, constants.H) 	
 		self.current_rate = 0
 		self.score = 0
 
@@ -32,7 +32,7 @@ class Object:
 					pass
 				else:
 					_new = bullet.Object(self.figures[a].x + self.figures[a].center[0], self.figures[a].y + self.figures[a].center[1],
-					 math.atan2(self.figures[a].dy, self.figures[a].dx), '')
+					 alpha=math.atan2(self.figures[a].dy, self.figures[a].dx))
 					self.bullets.append(_new)
 			if c == pygame.K_s:
 				self.figures[a].move_down = True
@@ -62,7 +62,7 @@ class Object:
 			minus = 1
 			if random.randint(0, 1) == 1:
 				minus = -1
-			_new = enemy.Object(dist_x, minus * math.sqrt(dist * dist - dist_x * dist_x), self.tw, '')
+			_new = enemy.Object(dist_x, minus * math.sqrt(dist * dist - dist_x * dist_x), self.tw)
 			self.enemies.append(_new) 
 		
 		for fig in self.figures:
@@ -118,7 +118,7 @@ class Object:
 			self.enemies[iter].y += self.enemies[iter].dy
 			iter_1 = 0
 			while iter_1 < len(self.bullets):
-				b = selfbullets[iter_1]
+				b = self.bullets[iter_1]
 				if math.hypot(b.x + b.center[0] - self.enemies[iter].x - self.enemies[iter].center[0], b.y + b.center[1] - self.enemies[iter].y - self.enemies[iter].center[1]) < b.size + self.enemies[iter].size:
 					del self.enemies[iter]
 					del self.bullets[iter_1]
@@ -140,7 +140,7 @@ class Object:
 
 		iter = 0
 		while iter < len(self.bullets):
-			if self.bullets[iter].x < 0 or self.bullets[iter].y < 0 or self.bullets[iter].x >= contants.W or self.bullets[iter].y >= constants.H:
+			if self.bullets[iter].x < 0 or self.bullets[iter].y < 0 or self.bullets[iter].x >= constants.W or self.bullets[iter].y >= constants.H:
 				del self.bullets[iter]
 				iter -= 1
 			else:
@@ -155,5 +155,5 @@ class Object:
 			ans += 'bullet;' + str(b.x) + ';' + str(b.y) + '\n'
 		for e in self.enemies:
 			ans += 'enemy;' + str(e.x) + ';' + str(e.y) + '\n';
-		ans += 'tower;' + str(self.tw.x) + ';' + str(self.tw.y) + '\n'
+		ans += 'tower;' + str(self.tw.w) + ';' + str(self.tw.h) + '\n'
 		return ans

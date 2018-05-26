@@ -18,7 +18,6 @@ g = game.Game(constants.W, constants.H)
 
 while 1:	
 	req = ''
-	print('making query')
 	for event in pygame.event.get():
 		q = str(port - 9090) + ';' + str(event.type) + ';'
 		if event.type == pygame.KEYDOWN or event.type == pygame.KEYUP:
@@ -27,35 +26,48 @@ while 1:
 			q += '0'
 		q += '\n'
 		req += q
+	req += 'kek'
 	sock.send(req.encode('ascii'))
 	
 	figures = []
 	enemies = []
 	bullets = []
-	tw = tower.Object(constants.W / 2, constants.H / 2, 'C:\\Users\\KiKoS\\Desktop\\DfVP\\tower.png')
-	print('getting query')
+	tw = tower.Object(constants.W, constants.H, 'C:\\Users\\KiKoS\\Desktop\\DfVP\\tower.png')
 	resp = sock.recv(1024).decode('ascii')
-	print('got query')
-	if not resp == '':
-		resp = resp.split('\n')
-		print('process query')
-		for s in resp:
-			#print(s)
-			q = s.split(';')
-			if q[0] == 'player':
+	resp = resp.split('\n')
+	for s in resp:
+		if s == 'kek':
+			break
+		q = s.split(';')
+		if q[0] == 'player':
+			if len(q) < 4:
+				print('wrong query:', q)
+				print(s)
+			else:
 				_new = player.Object(float(q[1]), float(q[2]), 'C:\\Users\\KiKoS\\Desktop\\DfVP\\player.png')
 				_new.rotate(float(q[3]))
 				figures.append(_new)
-			if q[0] == 'tower':
+		if q[0] == 'tower':
+			if len(q) < 3:
+				print('wrong query:', q)
+				print(s)
+			else:
 				_new = tower.Object(float(q[1]), float(q[2]), 'C:\\Users\\KiKoS\\Desktop\\DfVP\\tower.png')
 				tw = _new
-			if q[0] == 'bullet':
-				_new = bullet.Object(float(q[1]), float(q[2]), tw, 'C:\\Users\\KiKoS\\Desktop\\DfVP\\bullet.png')
+		if q[0] == 'bullet':
+			if len(q) < 3:
+				print('wrong query:', q)
+				print(s)
+			else:
+				_new = bullet.Object(float(q[1]), float(q[2]), 'C:\\Users\\KiKoS\\Desktop\\DfVP\\bullet.png')
 				bullets.append(_new)
-			if q[0] == 'enemy':
-				_new = enemy.Ogject(float(q[1]), float(q[2]), 'C:\\Users\\KiKoS\\Desktop\\DfVP\\enemy.png')
+		if q[0] == 'enemy':
+			if len(q) < 3:
+				print('wrong query:', q)
+				print(s)
+			else:
+				_new = enemy.Object(float(q[1]), float(q[2]), tw, 'C:\\Users\\KiKoS\\Desktop\\DfVP\\enemy.png')
 				enemies.append(_new) 		
-	print('draw')
 	g.surface.fill((255, 255, 255))
 	for fig in figures:
 		g.surface.blit(fig.surface, (fig.x, fig.y))
@@ -64,7 +76,6 @@ while 1:
 	for e in enemies:
 		g.surface.blit(e.surface, (e.x, e.y))
 	g.surface.blit(tw.surface, (tw.x, tw.y))
-	#pygame.display.set_caption('Score: ' + str(score))	
 	pygame.display.flip()
 
 	time.sleep(1 / constants.FPS)

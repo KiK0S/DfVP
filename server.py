@@ -14,22 +14,17 @@ hand = handler.Object()
 data = ''    
 while True:
     for conn in conns:
-    	print('get query')
     	data = conn.recv(1024).decode('ascii')
-    	print('got query')
     	if not data == '\n' and not data == '': 
-    		print('process query')	
     		for s in data.split('\n'):
-    			if s == '':
-    				continue
+    			if s == 'kek':
+    				break
     			#print(s)	
     			a, b, c = s.split(';')
     			hand.handle(a, b, c)
-    print('draw')
     hand.update()
     for conn in conns:
-    	print('send query')
-    	conn.send(hand.get().encode('ascii'))
+    	conn.send((hand.get() + 'kek').encode('ascii'))
     time.sleep(1 / constants.FPS)
 	
 conn.close()
