@@ -29,11 +29,11 @@ class Object:
 				pygame.quit()
 				exit()
 			if c == pygame.K_l:
-				if self.figures[a].dx == 0 and self.figures[a].dy == 0:
+				if self.figures[a].cur_dx == 0 and self.figures[a].cur_dy == 0:
 					pass
 				else:
 					_new = bullet.Object(self.figures[a].x + self.figures[a].center[0], self.figures[a].y + self.figures[a].center[1],
-					 alpha=math.atan2(self.figures[a].dy, self.figures[a].dx))
+					 alpha=math.atan2(self.figures[a].cur_dy, self.figures[a].cur_dx))
 					self.bullets.append(_new)
 			if c == pygame.K_s:
 				self.figures[a].move_down = True

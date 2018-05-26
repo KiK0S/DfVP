@@ -10,10 +10,11 @@ import enemy
 import tower        
 import constants 
 import socket
-
-port = 9090
+import sys
+port = int(sys.argv[2])
+adress = sys.argv[1]
 sock = socket.socket()
-sock.connect(('localhost', port))
+sock.connect((adress, port))
 g = game.Game(constants.W, constants.H)
 
 while 1:	
