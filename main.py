@@ -33,7 +33,7 @@ while 1:
 	figures = []
 	enemies = []
 	bullets = []
-	tw = tower.Object(constants.W, constants.H, 'C:\\Users\\KiKoS\\Desktop\\DfVP\\tower.png')
+	tw = tower.Object(constants.W, constants.H, constants.PREFIX + '\\tower.png')
 	resp = sock.recv(8192).decode('ascii')
 	resp = resp.split('\n')
 	for s in resp:
@@ -45,7 +45,7 @@ while 1:
 				print('wrong query:', q)
 				print(resp)
 			else:
-				_new = player.Object(float(q[1]), float(q[2]), 'C:\\Users\\KiKoS\\Desktop\\DfVP\\player.png')
+				_new = player.Object(float(q[1]), float(q[2]), constants.PREFIX + '\\player.png')
 				_new.rotate(float(q[3]))
 				figures.append(_new)
 		if q[0] == 'tower':
@@ -53,21 +53,21 @@ while 1:
 				print('wrong query:', q)
 				print(resp)
 			else:
-				_new = tower.Object(float(q[1]), float(q[2]), 'C:\\Users\\KiKoS\\Desktop\\DfVP\\tower.png')
+				_new = tower.Object(float(q[1]), float(q[2]), constants.PREFIX + '\\tower.png')
 				tw = _new
 		if q[0] == 'bullet':
 			if len(q) < 3:
 				print('wrong query:', q)
 				print(resp)
 			else:
-				_new = bullet.Object(float(q[1]), float(q[2]), 'C:\\Users\\KiKoS\\Desktop\\DfVP\\bullet.png')
+				_new = bullet.Object(float(q[1]), float(q[2]), constants.PREFIX + '\\bullet.png')
 				bullets.append(_new)
 		if q[0] == 'enemy':
 			if len(q) < 3:
 				print('wrong query:', q)
 				print(resp)
 			else:
-				_new = enemy.Object(float(q[1]), float(q[2]), tw, 'C:\\Users\\KiKoS\\Desktop\\DfVP\\enemy.png')
+				_new = enemy.Object(float(q[1]), float(q[2]), tw, constants.PREFIX + '\\enemy.png')
 				enemies.append(_new) 		
 	g.surface.fill((255, 255, 255))
 	for fig in figures:
