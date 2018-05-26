@@ -7,7 +7,7 @@ ports = range(9090, 9090 + num_players)
 conns = []
 for port in ports:
 	sock = socket.socket()
-	sock.bind(('localhost', port))
+	sock.bind(('', port))
 	sock.listen(1)
 	conn = sock.accept()[0]
 	conns.append(conn)
