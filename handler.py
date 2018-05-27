@@ -15,7 +15,7 @@ class Object:
 		self.bullets = []
 		self.enemies = []
 		self.current_rate = 0
-
+		self.end = 0
 
 	def handle(self, a, b, c):
 		a = int(a)
@@ -25,9 +25,7 @@ class Object:
 			self.figures.append(player.Object(0, 0, '')) 
 		if b == pygame.KEYDOWN:
 			if c == pygame.K_ESCAPE:
-				print('Goodbye')
-				pygame.quit()
-				exit()
+				self.end = 1
 			if c == pygame.K_l:
 				if self.figures[a].cur_dx == 0 and self.figures[a].cur_dy == 0:
 					pass
@@ -120,7 +118,11 @@ class Object:
 			ans += constants.STR_B + ';' +  str(int(b.x)) + ';' + str(int(b.y)) + ';' + str(float(int(b.alpha * 1000) / 1000)) + '\n'
 		for e in self.enemies:
 			ans += constants.STR_E + ';' + str(int(e[0])) + ';' + str(int(e[1])) + '\n'
+		if self.end == 1:
+			ans += constants.STR_END + '\n'
+			self.end = 2
 		return ans
+
 	def clear(self):
 		del self.enemies[:]
 		del self.bullets[:]

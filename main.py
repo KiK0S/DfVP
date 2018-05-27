@@ -26,7 +26,7 @@ score = 0
 while 1:	
 	req = ''
 	if end:
-		req += str(port - 9090) + ';' + str(pygame.KEYDOWN) + ';' + str(pygame.K_ESC) + '\n'
+		req += str(port - 9090) + ';' + str(pygame.KEYDOWN) + ';' + str(pygame.K_ESCAPE) + '\n'
 	for event in pygame.event.get():
 		q = str(port - 9090) + ';' + str(event.type) + ';'
 		if event.type == pygame.KEYDOWN or event.type == pygame.KEYUP:
@@ -55,6 +55,10 @@ while 1:
 	for s in resp:
 		if s == constants.STR_K:
 			break
+		if s == constants.STR_END:
+			print('Goodbye')
+			pygame.quit()
+			exit()
 		q = s.split(';')
 		if q[0] == constants.STR_P:
 			if len(q) < 4:
