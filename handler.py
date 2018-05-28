@@ -65,38 +65,38 @@ class Object:
 		
 		for fig in self.figures:
 			if fig.move_left:
-				if fig.dx > -5:
-					fig.dx -= 0.5                    
+				if fig.dx > -constants.MAX_P_SPEED:
+					fig.dx -= constants.RISE_P_SPEED                    
 			else: 
 				if fig.dx < 0:
-					fig.dx += 0.75 
+					fig.dx += constants.FALL_P_SPEED 
 	
 			if fig.move_right:
-				if fig.dx < 5:
-					fig.dx += 0.5
+				if fig.dx < constants.MAX_P_SPEED:
+					fig.dx += constants.RISE_P_SPEED
 			else:
 				if fig.dx > 0:
-					fig.dx -= 0.75
+					fig.dx -= constants.FALL_P_SPEED
 
 			if fig.move_up:
-				if fig.dy > -5:
-					fig.dy -= 0.5
+				if fig.dy > -constants.MAX_P_SPEED:
+					fig.dy -= constants.RISE_P_SPEED
 			else:
 				if fig.dy < 0:
-			   		fig.dy += 0.75
+			   		fig.dy += constants.FALL_P_SPEED
 
 			if fig.move_down:
-				if fig.dy < 5:
-					fig.dy += 0.5
+				if fig.dy < constants.MAX_P_SPEED:
+					fig.dy += constants.RISE_P_SPEED
 			else:
    				if fig.dy > 0:
-   					fig.dy -= 0.75
+   					fig.dy -= constants.FALL_P_SPEED
 			fig.cur_dx, fig.cur_dy = 0, 0
 			if abs(fig.dy) <= 1:
 				fig.cur_dy = 0
 			else:
 				fig.cur_dy = fig.dy
-			if abs(fig.dx) <= 1:
+			if abs(fig.dx) <= constants.P_BAREER:
 				fig.cur_dx = 0
 			else:
 				fig.cur_dx = fig.dx

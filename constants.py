@@ -1,10 +1,15 @@
 import os
 W = 600
 H = 600
-ENEMY_SPEED = 2
-BULLET_SPEED = 15
-FPS = 30
-PREFIX = os.getcwd()
+start_FPS = 30
+FPS = 90
+ENEMY_SPEED = 2 * start_FPS / FPS 
+BULLET_SPEED = 15 *  start_FPS / FPS
+MAX_P_SPEED = 5 * start_FPS / FPS
+FALL_P_SPEED = 0.5 * start_FPS / FPS
+RISE_P_SPEED = 0.75 * start_FPS / FPS
+P_BAREER = 1 * start_FPS / FPS
+PREFIX = os.getcwd() + '\\assets'
 STR_C = 'c'
 STR_S = 's'
 STR_T = 't'
