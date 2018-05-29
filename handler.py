@@ -105,10 +105,13 @@ class Object:
 				pass
 			else:
 				fig.alpha = math.atan2(-fig.cur_dy, fig.cur_dx)
-
+			fig.checkout()
 			fig.x += fig.cur_dx
 			fig.y += fig.cur_dy
-		
+			fig.x = max(fig.x, 0)
+			fig.x = min(fig.x, constants.W - fig.size)
+			fig.y = max(fig.y, 0)
+			fig.y = min(fig.y, constants.H - fig.size)
 
 	def get(self):
 		ans = ''
