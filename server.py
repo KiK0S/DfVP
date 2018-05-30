@@ -2,6 +2,7 @@ import socket
 import handler
 import time
 import constants
+import pygame
 num_players = int(input())
 ports = range(9090, 9090 + num_players)
 conns = []
@@ -17,6 +18,7 @@ for port in ports:
 	conns.append(conn)
 hand = handler.Object()
 data = ''    
+clock = pygame.time.Clock()
 while True:              
     for conn in conns:
     	data = conn.recv(1024).decode('ascii')
@@ -32,4 +34,4 @@ while True:
     if hand.end == 2:
     	break
     hand.clear()
-    time.sleep(1 / constants.FPS)
+    clock.tick(constants.FPS)

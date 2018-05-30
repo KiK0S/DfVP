@@ -2,8 +2,8 @@ import os
 W = 600
 H = 600
 start_FPS = 30
-FPS = 120
-ENEMY_SPEED = 2 * start_FPS / FPS 
+FPS = 30
+ENEMY_SPEED = 1.5 * start_FPS / FPS 
 BULLET_SPEED = 15 *  start_FPS / FPS
 MAX_P_SPEED = 5 * start_FPS / FPS
 FALL_P_SPEED = 0.5 * start_FPS / FPS

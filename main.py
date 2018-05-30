@@ -23,8 +23,11 @@ enemies = []
 bullets = []
 end = 0	
 score = 0
+clock = pygame.time.Clock()
 while 1:	
 	req = ''
+	if end == 1:
+		req += str(port - 9090) + ';' + str(pygame.KEYDOWN) + ';' + str(pygame.K_ESCAPE) + '\n'
 	for event in pygame.event.get():
 		q = str(port - 9090) + ';' + str(event.type) + ';'
 		if event.type == pygame.KEYDOWN or event.type == pygame.KEYUP:
@@ -71,8 +74,8 @@ while 1:
 	iter = 0
 	while iter < len(enemies):
 		ok = True
-		enemies[iter].x += enemies[iter].dx
-		enemies[iter].y += enemies[iter].dy
+		enemies[iter].x += enemies[iter].dx * enemies[iter].speed
+		enemies[iter].y += enemies[iter].dy * enemies[iter].speed
 		iter_1 = 0
 		while iter_1 < len(bullets):
 			b = bullets[iter_1]
@@ -114,5 +117,4 @@ while 1:
 	g.surface.blit(tw.surface, (tw.x, tw.y))
 	pygame.display.set_caption('Score: ' + str(score))
 	pygame.display.flip()
-
-	time.sleep(1 / constants.FPS)
+	clock.tick(constants.FPS)

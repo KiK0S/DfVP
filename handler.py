@@ -16,6 +16,7 @@ class Object:
 		self.enemies = []
 		self.current_rate = 0
 		self.end = 0
+		self.tw = tower.Object(constants.W, constants.H)	
 
 	def handle(self, a, b, c):
 		a = int(a)
@@ -61,7 +62,7 @@ class Object:
 			minus = 1
 			if random.randint(0, 1) == 1:
 				minus = -1
-			self.enemies.append([dist_x, minus * math.sqrt(dist * dist - dist_x * dist_x)]) 
+			self.enemies.append([self.tw.x + self.tw.center[0] + dist_x, self.tw.y + self.tw.center[1] + minus * math.sqrt(dist * dist - dist_x * dist_x)]) 
 		
 		for fig in self.figures:
 			if fig.move_left:
