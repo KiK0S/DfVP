@@ -123,7 +123,7 @@ class Object:
 			ans += constants.STR_E + ';' + str(int(e[0])) + ';' + str(int(e[1])) + '\n'
 		if self.end == 1:
 			ans += constants.STR_END + '\n'
-			self.end = 2
+			self.end = 2    
 		return ans
 
 	def clear(self):

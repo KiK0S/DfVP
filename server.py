@@ -17,14 +17,13 @@ for port in ports:
 	conns.append(conn)
 hand = handler.Object()
 data = ''    
-while True:
+while True:              
     for conn in conns:
     	data = conn.recv(1024).decode('ascii')
     	if not data == '\n' and not data == '': 
     		for s in data.split('\n'):
     			if s == constants.STR_K:
     				break
-    			#print(s)	
     			a, b, c = s.split(';')
     			hand.handle(a, b, c)
     hand.update()

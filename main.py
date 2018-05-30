@@ -43,12 +43,12 @@ while 1:
 		time.sleep(1)
 		print('Game Over')
 		pygame.quit()
-		exit()
+		sys.exit(0)
 	if end == 2:
 		time.sleep(1)
 		print('Goodbye')
 		pygame.quit()
-		exit()
+		sys.exit(0)
 	resp = sock.recv(1024).decode('ascii')
 	resp = resp.split('\n')
 	del figures[:]
