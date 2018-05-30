@@ -122,10 +122,11 @@ class Object:
 		for e in self.enemies:
 			ans += constants.STR_E + ';' + str(int(e[0])) + ';' + str(int(e[1])) + '\n'
 		if self.end == 1:
-			ans += constants.STR_END + '\n'
-			self.end = 2    
+			ans += constants.STR_END + '\n'    
 		return ans
 
 	def clear(self):
 		del self.enemies[:]
 		del self.bullets[:]
+		if self.end == 1:
+			self.end = 2

@@ -25,14 +25,10 @@ end = 0
 score = 0
 while 1:	
 	req = ''
-	if end:
-		req += str(port - 9090) + ';' + str(pygame.KEYDOWN) + ';' + str(pygame.K_ESCAPE) + '\n'
 	for event in pygame.event.get():
 		q = str(port - 9090) + ';' + str(event.type) + ';'
 		if event.type == pygame.KEYDOWN or event.type == pygame.KEYUP:
 			q += str(event.key)
-			if event.key == pygame.K_ESCAPE:
-				end = 2
 		else:
 			q += '0'
 		q += '\n'

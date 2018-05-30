@@ -33,5 +33,3 @@ while True:
     	break
     hand.clear()
     time.sleep(1 / constants.FPS)
-for conn in conns:	
-	conn.close()
