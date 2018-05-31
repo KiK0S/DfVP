@@ -1,11 +1,12 @@
 import pygame
 import math
-
+import constants
 class Object:              
 
-	def __init__(self, x, y, name='', a=50):
+	def __init__(self, x, y, idx, name='', a=50):
 		self.x = x
 		self.y = y
+		self.idx = idx
 		self.size = a
 		self.center = [a // 2, a // 2]
 		self.min_x = 0
@@ -15,7 +16,7 @@ class Object:
 		self.points_x = [0, 0, a]
 		self.points_y = [0, a, a//2]
 		if name != '':
-			self.pict = pygame.image.load(name).convert_alpha()
+			self.pict = pygame.image.load(name + str(idx) + constants.PNG).convert_alpha()	
 			self.surface = self.pict
 		self.dx = 0
 		self.dy = 0

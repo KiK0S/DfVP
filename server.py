@@ -15,7 +15,7 @@ for i in range(num_of_players):
 	conn = sock.accept()[0]
 	conn.send(str(i).encode('ascii'))
 	conns.append(conn)
-hand = handler.Object()
+hand = handler.Object(num_of_players)
 data = ''    
 clock = pygame.time.Clock()
 while True:              

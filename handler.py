@@ -10,20 +10,21 @@ import time
 
 class Object:
 	
-	def __init__(self):
-		self.figures = []
+	def __init__(self, n):
+		self.figures = [player.Object(0, 0, i, '') for i in range(n)]
 		self.bullets = []
 		self.enemies = []
 		self.current_rate = 0
 		self.end = 0
 		self.tw = tower.Object(constants.W, constants.H)	
+		self.wave = 1
 
 	def handle(self, a, b, c):
 		a = int(a)
 		b = int(b)
 		c = int(c)
 		if a < 0 or a >= len(self.figures):
-			self.figures.append(player.Object(0, 0, '')) 
+			self.figures.append(player.Object(0, 0, a, '')) 
 		if b == pygame.KEYDOWN:
 			if c == pygame.K_ESCAPE:
 				self.end = 1
@@ -32,7 +33,7 @@ class Object:
 					pass
 				else:
 					_new = bullet.Object(self.figures[a].x + self.figures[a].center[0], self.figures[a].y + self.figures[a].center[1],
-					 alpha=math.atan2(self.figures[a].cur_dy, self.figures[a].cur_dx))
+					 alpha=math.atan2(self.figures[a].cur_dy, self.figures[a].cur_dx), idx=a)
 					self.bullets.append(_new)
 			if c == pygame.K_s:
 				self.figures[a].move_down = True
@@ -56,13 +57,27 @@ class Object:
 	
 	def update(self):
 		self.current_rate += 1
-		if self.current_rate % constants.FPS == 0:
-			dist = constants.W * 2
-			dist_x = random.randint(-dist, dist)
-			minus = 1
-			if random.randint(0, 1) == 1:
-				minus = -1
-			self.enemies.append([self.tw.x + self.tw.center[0] + dist_x, self.tw.y + self.tw.center[1] + minus * math.sqrt(dist * dist - dist_x * dist_x)]) 
+		if self.current_rate == constants.WAVE_TIME * constants.FPS:
+			cnt = (self.wave + constants.WAVES - 1) // constants.WAVES
+			for j in range(len(self.figures)):
+				for i in range(cnt * constants.COLOR_PER_WAVE):
+					dist = constants.W * 2
+					dist_x = random.randint(-dist, dist)
+					minus = 1
+					if random.randint(0, 1) == 1:
+						minus = -1
+					_new = enemy.Object(dist_x, minus * math.sqrt(dist * dist - dist_x * dist_x), self.tw, j)
+					self.enemies.append(_new) 
+			for i in range(cnt * constants.NUM_PER_WAVE):
+				dist = constants.W * 2
+				dist_x = random.randint(-dist, dist)
+				minus = 1
+				if random.randint(0, 1) == 1:
+					minus = -1
+				_new = enemy.Object(dist_x, minus * math.sqrt(dist * dist - dist_x * dist_x), self.tw, '')
+				self.enemies.append(_new)
+			self.wave += 1
+			self.current_rate = 0
 		
 		for fig in self.figures:
 			if fig.move_left:
@@ -117,11 +132,11 @@ class Object:
 	def get(self):
 		ans = ''
 		for fig in self.figures:
-			ans += constants.STR_P + ';' + str(int(fig.x)) + ';' + str(int(fig.y)) + ';' + str(float(int(fig.alpha * 1000) / 1000)) + '\n'
+			ans += constants.STR_P + ';' + str(int(fig.x)) + ';' + str(int(fig.y)) + ';' + str(float(int(fig.alpha * 1000) / 1000)) + ';' + str(fig.idx) + '\n'
 		for b in self.bullets:
-			ans += constants.STR_B + ';' +  str(int(b.x)) + ';' + str(int(b.y)) + ';' + str(float(int(b.alpha * 1000) / 1000)) + '\n'
+			ans += constants.STR_B + ';' +  str(int(b.x)) + ';' + str(int(b.y)) + ';' + str(float(int(b.alpha * 1000) / 1000)) + ';' + str(b.idx) + '\n'
 		for e in self.enemies:
-			ans += constants.STR_E + ';' + str(int(e[0])) + ';' + str(int(e[1])) + '\n'
+			ans += constants.STR_E + ';' + str(int(e.x)) + ';' + str(int(e.y)) + ';' + str(e.idx) + '\n'
 		if self.end == 1:
 			ans += constants.STR_END + '\n'    
 		return ans

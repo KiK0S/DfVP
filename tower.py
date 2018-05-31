@@ -9,6 +9,4 @@ class Object:
 		self.size = a // 2
 		self.center = [a // 2, a // 2]
 		if name != '':
-			self.pict = pygame.image.load(name).convert_alpha()
-			self.surface = self.pict
-
+			self.surface = pygame.image.load(name).convert_alpha()

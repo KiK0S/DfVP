@@ -3,11 +3,12 @@ import math
 import constants
 class Object:
 	
-	def __init__(self, x, y, name='', a = 10, alpha = 0):
+	def __init__(self, x, y, idx, name='', a = 10, alpha = 0):
 		if name != '':
-			self.surface = pygame.image.load(name).convert_alpha()
+			self.surface = pygame.image.load(name + str(idx) + constants.PNG).convert_alpha()
 		self.x = x
 		self.y = y
+		self.idx = idx
 		self.size = a // 2
 		self.alpha = alpha
 		self.speed = constants.BULLET_SPEED

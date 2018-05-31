@@ -1,4 +1,5 @@
 import pygame
+import os
 class Game:
 	def __init__(self,
 				 #caption, 
@@ -9,4 +10,4 @@ class Game:
 		self.finish = False
 		pygame.init()
 		self.surface = pygame.display.set_mode((width, height))
-		self.background = pygame.Surface(self.surface.get_size())
+		self.background = pygame.image.load(os.getcwd() + '\\assets\\pole.png').convert_alpha()

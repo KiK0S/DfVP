@@ -51,26 +51,26 @@ while 1:
 			sys.exit(0)
 		q = s.split(';')
 		if q[0] == constants.STR_P:
-			if len(q) < 4:
+			if len(q) < 5:
 				print('wrong query:', q)
 				print(resp)
 			else:
-				_new = player.Object(float(q[1]), float(q[2]), constants.PREFIX + '\\player.png')
+				_new = player.Object(float(q[1]), float(q[2]), q[4], constants.PREFIX + '\\player')
 				_new.rotate(float(q[3]))
 				figures.append(_new)
 		if q[0] == constants.STR_B:
+			if len(q) < 5:
+				print('wrong query:', q)
+				print(resp)
+			else:
+				_new = bullet.Object(float(q[1]), float(q[2]), q[4], constants.PREFIX + '\\bullet', alpha=float(q[3]))
+				bullets.append(_new)
+		if q[0] == constants.STR_E:
 			if len(q) < 4:
 				print('wrong query:', q)
 				print(resp)
 			else:
-				_new = bullet.Object(float(q[1]), float(q[2]), constants.PREFIX + '\\bullet.png', alpha=float(q[3]))
-				bullets.append(_new)
-		if q[0] == constants.STR_E:
-			if len(q) < 3:
-				print('wrong query:', q)
-				print(resp)
-			else:
-				_new = enemy.Object(float(q[1]), float(q[2]), tw, constants.PREFIX + '\\enemy.png')
+				_new = enemy.Object(float(q[1]) + tw.x + tw.center[0], float(q[2]) + tw.y + tw.center[1], tw, q[3], constants.PREFIX + '\\enemy')
 				enemies.append(_new) 		
 	iter = 0
 	while iter < len(enemies):
@@ -80,7 +80,7 @@ while 1:
 		iter_1 = 0
 		while iter_1 < len(bullets):
 			b = bullets[iter_1]
-			if math.hypot(b.x + b.center[0] - enemies[iter].x - enemies[iter].center[0], b.y + b.center[1] - enemies[iter].y - enemies[iter].center[1]) < b.size + enemies[iter].size:
+			if math.hypot(b.x + b.center[0] - enemies[iter].x - enemies[iter].center[0], b.y + b.center[1] - enemies[iter].y - enemies[iter].center[1]) < b.size + enemies[iter].size and (str(b.idx) == str(enemies[iter].idx) or enemies[iter].idx == ''):
 				del enemies[iter]
 				del bullets[iter_1]
 				score += 1
@@ -108,7 +108,7 @@ while 1:
 			bullets[iter].x += bullets[iter].dx
 			bullets[iter].y += bullets[iter].dy
 		iter += 1
-	g.surface.fill((255, 255, 255))
+	g.surface.blit(g.background, (0, 0))
 	for fig in figures:
 		g.surface.blit(fig.surface, (fig.x, fig.y))
 	for b in bullets:
