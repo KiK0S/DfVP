@@ -3,18 +3,17 @@ import handler
 import time
 import constants
 import pygame
-num_players = int(input())
-ports = range(9090, 9090 + num_players)
+import sys
+port = 9090
+num_of_players = int(sys.argv[1])
 conns = []
-for port in ports:
-	sock = socket.socket()
-	print('binding')
-	sock.bind(('', port))
-	sock.settimeout(None)
-	sock.listen(1)
-	print('accepting')
+sock = socket.socket()
+sock.bind(('', port))	
+sock.listen(num_of_players)  
+sock.settimeout(None)
+for i in range(num_of_players):
 	conn = sock.accept()[0]
-	print('OK')
+	conn.send(str(i).encode('ascii'))
 	conns.append(conn)
 hand = handler.Object()
 data = ''    

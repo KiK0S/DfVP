@@ -16,6 +16,7 @@ adress = sys.argv[1]
 sock = socket.socket()
 sock.settimeout(None)
 sock.connect((adress, port))
+idx = int(sock.recv(1024).decode('ascii'))
 g = game.Game(constants.W, constants.H)
 tw = tower.Object(constants.W, constants.H, constants.PREFIX + '\\tower.png')
 figures = []
@@ -27,9 +28,9 @@ clock = pygame.time.Clock()
 while 1:	
 	req = ''
 	if end == 1:
-		req += str(port - 9090) + ';' + str(pygame.KEYDOWN) + ';' + str(pygame.K_ESCAPE) + '\n'
+		req += str(idx) + ';' + str(pygame.KEYDOWN) + ';' + str(pygame.K_ESCAPE) + '\n'
 	for event in pygame.event.get():
-		q = str(port - 9090) + ';' + str(event.type) + ';'
+		q = str(idx) + ';' + str(event.type) + ';'
 		if event.type == pygame.KEYDOWN or event.type == pygame.KEYUP:
 			q += str(event.key)
 		else:
