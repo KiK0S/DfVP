@@ -11,6 +11,7 @@ import tower
 import constants 
 import socket
 import sys
+import text_field
 port = int(sys.argv[2])
 adress = sys.argv[1]
 sock = socket.socket()
@@ -25,6 +26,8 @@ bullets = []
 end = 0	
 score = 0
 clock = pygame.time.Clock()
+pygame.display.set_caption('DfVP')           
+score_view = text_field.Object('kek', 0, 0)
 while 1:	
 	req = ''
 	if end == 1:
@@ -108,14 +111,21 @@ while 1:
 			bullets[iter].x += bullets[iter].dx
 			bullets[iter].y += bullets[iter].dy
 		iter += 1
+	
 	g.surface.blit(g.background, (0, 0))
+	
 	for fig in figures:
 		g.surface.blit(fig.surface, (fig.x, fig.y))
 	for b in bullets:
 		g.surface.blit(b.surface, (b.x, b.y))
 	for e in enemies:
 		g.surface.blit(e.surface, (e.x, e.y))
+
 	g.surface.blit(tw.surface, (tw.x, tw.y))
-	pygame.display.set_caption('Score: ' + str(score))
+	del score_view
+	score_view = text_field.Object('Score: ' + str(score), 0, 0)
+	g.surface.blit(score_view.surface, (score_view.x, score_view.y))
+	txt = text_field.Object('    Num of players: ' + str(len(figures)), score_view.surface.get_width(), 0)
+	g.surface.blit(txt.surface, (txt.x, txt.y))
 	pygame.display.flip()
 	clock.tick(constants.FPS)

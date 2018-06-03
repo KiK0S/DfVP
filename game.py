@@ -9,5 +9,6 @@ class Game:
 		self.height = height
 		self.finish = False
 		pygame.init()
+		pygame.font.init()
 		self.surface = pygame.display.set_mode((width, height))
 		self.background = pygame.image.load(os.getcwd() + '\\assets\\pole.png').convert_alpha()
