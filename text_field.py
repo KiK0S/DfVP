@@ -7,4 +7,4 @@ class Object:
 		self.x = x
 		self.y = y
 		font = pygame.font.SysFont('Calibri', 30)
-		self.surface = font.render(text, 1, (0, 0, 0), (255, 255, 255))
+		self.surface = font.render(text, 1, (255, 255, 255))
