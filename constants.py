@@ -24,3 +24,5 @@ COLOR_PER_WAVE = 1
 WAVE_TIME = 10
 PORT = 9090
 PNG = '.png'
+MAXPLAYER = 10
+START = 'start'

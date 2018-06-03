@@ -4,18 +4,8 @@ import time
 import constants
 import pygame
 import sys
-def sosat(num_of_players):
-	port = 9090
-	conns = []
-	sock = socket.socket()
-	sock.bind(('', port))	
-	sock.listen(num_of_players)  
-	sock.settimeout(None)
-	for i in range(num_of_players):
-		conn = sock.accept()[0]
-		conn.send(str(i).encode('ascii'))
-		conns.append(conn)
-	hand = handler.Object(num_of_players)
+def run(conns):
+	hand = handler.Object(len(conns))
 	data = ''    
 	clock = pygame.time.Clock()
 	while True:              
@@ -25,7 +15,10 @@ def sosat(num_of_players):
    				for s in data.split('\n'):
    					if s == constants.STR_K:
    						break
-   					a, b, c = s.split(';')
+   					try:
+   						a, b, c = s.split(';')
+   					except Exception:
+   						print(s)
    					hand.handle(a, b, c)
 		hand.update()
 		for conn in conns:

@@ -27,11 +27,7 @@ class Object:
 		pygame.display.set_icon(pygame.image.load(constants.PREFIX + '\\icon.png').convert_alpha())
 		self.background = pygame.image.load(constants.PREFIX + '\\pole.png').convert_alpha()
 
-	def run(self, address):
-		sock = socket.socket()
-		sock.settimeout(None)
-		sock.connect((address, constants.PORT))
-		idx = int(sock.recv(1024).decode('ascii'))
+	def run(self, idx, sock):
 		tw = tower.Object(constants.W, constants.H, constants.PREFIX + '\\tower.png')
 		figures = []
 		enemies = []
