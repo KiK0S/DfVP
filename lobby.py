@@ -17,8 +17,8 @@ while len(conns) < constants.MAXPLAYER:
 	sock.settimeout(0.1)
 	try:
 		conn = sock.accept()[0]
-		conn.send(str(len(conns) - 1).encode('ascii'))
 		conns.append(conn)
+		conn.send(str(len(conns) - 1).encode('ascii'))
 	except Exception:
 		pass
 	start = 0
@@ -27,8 +27,6 @@ while len(conns) < constants.MAXPLAYER:
 		if s == constants.START:
 			start = 1
 			break
-		else:
-			print(s)
 	if start:
 		for conn in conns:
 			conn.send(constants.START.encode('ascii'))
