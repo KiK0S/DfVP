@@ -67,7 +67,7 @@ class Object:
 					_new.rotate(float(q[3]))
 					figures.append(_new)
 				if q[0] == constants.STR_B:
-					_new = bullet.Object(float(q[1]), float(q[2]), q[4], constants.PREFIX + + constants.SLASH + 'bullet', alpha=float(q[3]))
+					_new = bullet.Object(float(q[1]), float(q[2]), q[4], constants.PREFIX + constants.SLASH + 'bullet', alpha=float(q[3]))
 					bullets.append(_new)
 				if q[0] == constants.STR_E:
 					_new = enemy.Object(float(q[1]) + tw.x + tw.center[0], float(q[2]) + tw.y + tw.center[1], tw, q[3], constants.PREFIX + constants.SLASH + 'enemy')
