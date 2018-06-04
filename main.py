@@ -14,11 +14,14 @@ while 1:
 	start = 0	
 	for event in pygame.event.get():
 		if event.type == pygame.KEYDOWN:
-			if event.key == pygame.K_1:
-				sock.send(constants.START.encode('ascii'))
-				start = 1
 			if event.key == pygame.K_ESCAPE:
-				end = 1				
+				end = 1
+		if event.type == pygame.MOUSEBUTTONDOWN:
+			if event.button == constants.LEFT:
+				coords = pygame.mouse.get_pos()
+				if start_button.check(coords):
+					sock.send(constants.START.encode('ascii'))
+					start = 1			
 	if end:
 		break
 	if start == 0:

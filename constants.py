@@ -26,3 +26,4 @@ PORT = 9090
 PNG = '.png'
 MAXPLAYER = 10
 START = 'start'
+LEFT = 1
