@@ -13,17 +13,20 @@ class Object:
 		sock = socket.socket()
 		sock.bind(('', port))	
 		sock.listen(constants.MAXPLAYER)  
-		sock.settimeout(None)
+		sock.settimeout(0.1)
 		conns = []
-		conn = sock.accept()[0]
-		conns.append(conn)
-		conn.send(str(len(conns) - 1).encode('ascii'))
-		print('OK')
-		while len(conns) < constants.MAXPLAYER:
-			sock.settimeout(0.1)
+		got = 0
+		while not got:
 			try:
 				conn = sock.accept()[0]
-				print('OK')
+				conns.append(conn)
+				conn.send(str(len(conns) - 1).encode('ascii'))
+				got = 1
+			except:
+				return 0
+		while len(conns) < constants.MAXPLAYER:
+			try:
+				conn = sock.accept()[0]
 				conns.append(conn)
 				conn.send(str(len(conns) - 1).encode('ascii'))
 			except Exception:
@@ -41,3 +44,4 @@ class Object:
 			for conn in conns:
 				conn.send('check'.encode('ascii'))
 		server.run(conns)
+		return 1	
