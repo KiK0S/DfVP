@@ -22,14 +22,14 @@ class Object:
 				conns.append(conn)
 				conn.send(str(len(conns) - 1).encode('ascii'))
 				got = 1
-			except:
+			except socket.timeout:
 				return 0
 		while len(conns) < constants.MAXPLAYER:
 			try:
 				conn = sock.accept()[0]
 				conns.append(conn)
 				conn.send(str(len(conns) - 1).encode('ascii'))
-			except Exception:
+			except socket.timeout:
 				pass
 			start = 0
 			for conn in conns:
@@ -44,4 +44,6 @@ class Object:
 			for conn in conns:
 				conn.send('check'.encode('ascii'))
 		server.run(conns)
+		for conn in conns:
+			conn.close()
 		return 1	

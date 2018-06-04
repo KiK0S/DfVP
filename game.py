@@ -24,11 +24,11 @@ class Object:
 		pygame.init()
 		pygame.font.init()
 		self.surface = pygame.display.set_mode((width, height))
-		pygame.display.set_icon(pygame.image.load(constants.PREFIX + '\\icon.png').convert_alpha())
-		self.background = pygame.image.load(constants.PREFIX + '\\pole.png').convert_alpha()
+		pygame.display.set_icon(pygame.image.load(constants.PREFIX + constants.SLASH  + 'icon.png').convert_alpha())
+		self.background = pygame.image.load(constants.PREFIX + constants.SLASH + 'pole.png').convert_alpha()
 
 	def run(self, idx, sock):
-		tw = tower.Object(constants.W, constants.H, constants.PREFIX + '\\tower.png')
+		tw = tower.Object(constants.W, constants.H, constants.PREFIX + constants.SLASH + 'tower.png')
 		figures = []
 		enemies = []
 		bullets = []
@@ -63,14 +63,14 @@ class Object:
 					sys.exit(0)
 				q = s.split(';')
 				if q[0] == constants.STR_P:
-					_new = player.Object(float(q[1]), float(q[2]), q[4], constants.PREFIX + '\\player')
+					_new = player.Object(float(q[1]), float(q[2]), q[4], constants.PREFIX + constants.SLASH + 'player')
 					_new.rotate(float(q[3]))
 					figures.append(_new)
 				if q[0] == constants.STR_B:
-					_new = bullet.Object(float(q[1]), float(q[2]), q[4], constants.PREFIX + '\\bullet', alpha=float(q[3]))
+					_new = bullet.Object(float(q[1]), float(q[2]), q[4], constants.PREFIX + + constants.SLASH + 'bullet', alpha=float(q[3]))
 					bullets.append(_new)
 				if q[0] == constants.STR_E:
-					_new = enemy.Object(float(q[1]) + tw.x + tw.center[0], float(q[2]) + tw.y + tw.center[1], tw, q[3], constants.PREFIX + '\\enemy')
+					_new = enemy.Object(float(q[1]) + tw.x + tw.center[0], float(q[2]) + tw.y + tw.center[1], tw, q[3], constants.PREFIX + constants.SLASH + 'enemy')
 					enemies.append(_new) 		
 			iter = 0
 			while iter < len(enemies):
