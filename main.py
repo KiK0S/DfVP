@@ -5,7 +5,7 @@ import constants
 import text_field
 import socket
 g = game.Object(constants.W, constants.H)
-start_button = text_field.Object('START', constants.W // 2, constants.H // 2, flag=14)
+start_button = text_field.Object('START', constants.W // 2, constants.H // 2, flag=1)
 sock = socket.socket()
 sock.connect((constants.ADDRESS, constants.PORT))
 idx = int(sock.recv(1024).decode('ascii'))
