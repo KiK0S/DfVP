@@ -7,12 +7,12 @@ import sys
 class Object:
 	def __init__(self):
 		sock = socket.socket()
+		port = constants.PORT
 		sock.bind(('', port))	
 		sock.listen(constants.MAXPLAYER)  
 		sock.settimeout(5)
 	
 	def start(self, sock):
-		port = constants.PORT
 		self.conns = []
 		got = 0
 		while not got:
