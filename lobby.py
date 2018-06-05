@@ -6,13 +6,13 @@ import sys
 
 class Object:
 	def __init__(self):
-		sock = socket.socket()
+		self.sock = socket.socket()
 		port = constants.PORT
-		sock.bind(('', port))	
-		sock.listen(constants.MAXPLAYER)  
-		sock.settimeout(5)
+		self.sock.bind(('', port))	
+		self.sock.listen(constants.MAXPLAYER)  
+		self.sock.settimeout(5)
 	
-	def start(self, sock):
+	def start(self):
 		self.conns = []
 		got = 0
 		while not got:

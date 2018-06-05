@@ -5,7 +5,7 @@ while 1:
 	try:
 		if started:
 			print('start server')
-		started = server.start(sock) 
+		started = server.start() 
 		if started:
 			print('game stopped')
 	except KeyboardInterrupt:
