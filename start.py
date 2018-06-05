@@ -9,6 +9,9 @@ while 1:
 		if started:
 			print('game stopped')
 	except KeyboardInterrupt:
+		for conn in server.conns:
+			conn.close()
+		del server.conns[:]
 		break
 print('Goodbye')
 	
