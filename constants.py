@@ -1,4 +1,5 @@
 import os
+import platform
 W = 600
 H = 600
 start_FPS = 30
@@ -9,7 +10,10 @@ MAX_P_SPEED = 5 * start_FPS / FPS
 FALL_P_SPEED = 0.5 * start_FPS / FPS
 RISE_P_SPEED = 0.75 * start_FPS / FPS
 P_BAREER = 1 * start_FPS / FPS
-SLASH = '/'
+if platform.system() == 'Windows':
+	SLASH = '\\'
+else:
+	SLASH = '/'
 ADDRESS = '78.106.116.121'
 PREFIX = os.getcwd() + SLASH + 'assets'
 STR_C = 'c'
@@ -20,6 +24,7 @@ STR_P = 'p'
 STR_K = 'k'
 STR_E = 'e'
 STR_END = 'end'
+STR_CHECK = 'check'
 WAVES = 3
 NUM_PER_WAVE = 4
 COLOR_PER_WAVE = 1

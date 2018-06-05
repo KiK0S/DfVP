@@ -15,15 +15,12 @@ def run(conns):
    				for s in data.split('\n'):
    					if s == constants.STR_K:
    						break
-   					try:
-   						a, b, c = s.split(';')
-   					except Exception:
-   						print(s)
+   					a, b, c = s.split(';')
    					hand.handle(a, b, c)
 		hand.update()
 		for conn in conns:
 			conn.send((hand.get() + constants.STR_K).encode('ascii'))
+		hand.clear()
 		if hand.end == 2:
 			break
-		hand.clear()
 		clock.tick(constants.FPS)

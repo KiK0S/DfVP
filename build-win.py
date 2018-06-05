@@ -5,7 +5,8 @@ ex = [Executable('main.py', targetName = 'game.exe'), Executable('start.py', tar
 options = {
 	'build_exe': {
 		'includes': ['pygame', 'sys', 'socket', 'math', 'random', 'os', 'time'],
-		'include_files': ['assets']			
+		'include_files': ['assets'],
+		'build_exe': 'win'			
 	}
 }
 

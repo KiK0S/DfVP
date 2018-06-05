@@ -43,7 +43,7 @@ class Object:
 				iter += 1
 			for it in _del:
 				conns[it].close()
-				del conns[it]
+				dell conns[it]
 			if start:
 				for conn in self.conns:
 					conn.send(constants.START.encode('ascii'))

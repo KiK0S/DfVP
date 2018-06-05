@@ -23,6 +23,8 @@ while 1:
 					sock.send(constants.START.encode('ascii'))
 					start = 1			
 	if end:
+		sock.send(constants.STR_END.encode('ascii'))
+		print('Goodbye')
 		break
 	if start == 0:
 		sock.send('check'.encode('ascii'))
