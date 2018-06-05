@@ -6,15 +6,18 @@ import sys
 
 class Object:
 	def __init__(self):
-		pass
-
+		sock = socket.socket()
+		sock.bind(('', port))	
+		sock.listen(constants.MAXPLAYER)  
+		sock.settimeout(5)
+	
 	def start(self, sock):
 		port = constants.PORT
 		self.conns = []
 		got = 0
 		while not got:
 			try:
-				conn = sock.accept()[0]
+				conn = self.sock.accept()[0]
 				self.conns.append(conn)
 				conn.send(str(len(self.conns) - 1).encode('ascii'))
 				got = 1
@@ -22,7 +25,7 @@ class Object:
 				return 0
 		while len(self.conns) < constants.MAXPLAYER:
 			try:
-				conn = sock.accept()[0]
+				conn = self.sock.accept()[0]
 				self.conns.append(conn)
 				conn.send(str(len(self.conns) - 1).encode('ascii'))
 			except socket.timeout:
