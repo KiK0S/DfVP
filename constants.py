@@ -15,7 +15,7 @@ if platform.system() == 'Windows':
 else:
 	SLASH = '/'
 ADDRESS = '78.106.116.121'
-PREFIX = os.getcwd() + SLASH + 'assets'
+PREFIX = os.path.abspath(os.path.dirname(__file__)) + SLASH + 'assets'
 STR_C = 'c'
 STR_S = 's'
 STR_T = 't'
