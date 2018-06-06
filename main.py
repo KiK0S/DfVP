@@ -11,33 +11,38 @@ sock = socket.socket()
 sock.connect((constants.ADDRESS, constants.PORT))
 idx = int(sock.recv(1024).decode('ascii'))
 while 1: 
-	end = 0
-	start = 0	
-	for event in pygame.event.get():
-		if event.type == pygame.KEYDOWN:
-			if event.key == pygame.K_ESCAPE:
-				end = 1
-		if event.type == pygame.MOUSEBUTTONDOWN:
-			if event.button == constants.LEFT:
-				coords = pygame.mouse.get_pos()
-				if start_button.check(coords):
-					sock.send(constants.START.encode('ascii'))
-					start = 1			
-	if end:
-		sock.send(constants.STR_END.encode('ascii'))
-		print('Goodbye')
-		break
-	if start == 0:
-		sock.send('check'.encode('ascii'))
-	resp = sock.recv(1024).decode('ascii')
-	if resp == constants.START:
-		g.run(idx, sock)
-	else:
-		a = resp.split(';')
-		if len(a) > 1:
-			cnt_text.text = 'Connected: ' + a[1]
-		
-	g.surface.blit(g.background, (0, 0))
-	g.surface.blit(start_button.surface, (start_button.x, start_button.y))
-	g.surface.blit(cnt_text.surface, (cnt_text.x, cnt_text.y))
-	pygame.display.flip()
+	try:
+		end = 0
+		start = 0	
+		for event in pygame.event.get():
+			if event.type == pygame.KEYDOWN:
+				if event.key == pygame.K_ESCAPE:
+					end = 1
+			if event.type == pygame.MOUSEBUTTONDOWN:
+				if event.button == constants.LEFT:
+					coords = pygame.mouse.get_pos()
+					if start_button.check(coords):
+						sock.send(constants.START.encode('ascii'))
+						start = 1			
+		if end:
+			sock.send(constants.STR_END.encode('ascii'))
+			print('Goodbye')
+			break
+		if start == 0:
+			sock.send('check'.encode('ascii'))
+		resp = sock.recv(1024).decode('ascii')
+		if resp == constants.START:
+			g.run(idx, sock)
+		else:
+			a = resp.split(';')
+			if len(a) > 1:
+				cnt_text.settext('Connected: ' + a[1])
+			else:
+				print(a)
+		g.surface.blit(g.background, (0, 0))
+		g.surface.blit(start_button.surface, (start_button.x, start_button.y))
+		g.surface.blit(cnt_text.surface, (cnt_text.x, cnt_text.y))
+		pygame.display.flip()
+	except Exception as e:
+		print(e)
+		input('\n kek')

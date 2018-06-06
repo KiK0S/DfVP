@@ -50,6 +50,11 @@ class Object:
 				break	
 			for conn in self.conns:
 				conn.send((constants.STR_CHECK + ';' + str(len(self.conns))).encode('ascii'))
+		if len(self.conns) == constants.MAXPLAYER:
+			for conn in self.conns:
+				s = conn.recv(1024).decode('ascii')
+			for conn in self.conns:
+				conn.send(constants.START.encode('ascii'))	
 		server.run(self.conns)
 		for conn in self.conns:
 			conn.close()
