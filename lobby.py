@@ -43,13 +43,13 @@ class Object:
 				iter += 1
 			for it in _del:
 				self.conns[it].close()
-				del conns[it]
+				del self.conns[it]
 			if start:
 				for conn in self.conns:
 					conn.send(constants.START.encode('ascii'))
 				break	
 			for conn in self.conns:
-				conn.send((constants.STR_CHECK + ';' + str(len(conns))).encode('ascii'))
+				conn.send((constants.STR_CHECK + ';' + str(len(self.conns))).encode('ascii'))
 		server.run(self.conns)
 		for conn in self.conns:
 			conn.close()
