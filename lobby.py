@@ -42,7 +42,7 @@ class Object:
 					_del.append(iter)
 				iter += 1
 			for it in _del:
-				conns[it].close()
+				self.conns[it].close()
 				del conns[it]
 			if start:
 				for conn in self.conns:

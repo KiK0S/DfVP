@@ -1,4 +1,5 @@
 import os
+import sys
 import platform
 W = 600
 H = 600
@@ -15,7 +16,7 @@ if platform.system() == 'Windows':
 else:
 	SLASH = '/'
 ADDRESS = '78.106.116.121'
-PREFIX = os.getcwd() + SLASH + 'assets'
+PREFIX = os.path.dirname(os.path.realpath(sys.argv[0])) + SLASH + 'assets'
 STR_C = 'c'
 STR_S = 's'
 STR_T = 't'
