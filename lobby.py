@@ -42,14 +42,19 @@ class Object:
 					_del.append(iter)
 				iter += 1
 			for it in _del:
-				conns[it].close()
-				del conns[it]
+				self.conns[it].close()
+				del self.conns[it]
 			if start:
 				for conn in self.conns:
 					conn.send(constants.START.encode('ascii'))
 				break	
 			for conn in self.conns:
-				conn.send(constants.STR_CHECK.encode('ascii'))
+				conn.send((constants.STR_CHECK + ';' + str(len(self.conns))).encode('ascii'))
+		if len(self.conns) == constants.MAXPLAYER:
+			for conn in self.conns:
+				s = conn.recv(1024).decode('ascii')
+			for conn in self.conns:
+				conn.send(constants.START.encode('ascii'))	
 		server.run(self.conns)
 		for conn in self.conns:
 			conn.close()

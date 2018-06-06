@@ -15,6 +15,8 @@ def run(conns):
    				for s in data.split('\n'):
    					if s == constants.STR_K:
    						break
+   					if s.count(';') < 2:
+   						continue
    					a, b, c = s.split(';')
    					hand.handle(a, b, c)
 		hand.update()
