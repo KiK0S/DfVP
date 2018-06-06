@@ -49,7 +49,7 @@ class Object:
 					conn.send(constants.START.encode('ascii'))
 				break	
 			for conn in self.conns:
-				conn.send(constants.STR_CHECK.encode('ascii'))
+				conn.send((constants.STR_CHECK + ';' + str(len(conns))).encode('ascii'))
 		server.run(self.conns)
 		for conn in self.conns:
 			conn.close()
