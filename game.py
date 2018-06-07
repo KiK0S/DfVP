@@ -42,13 +42,13 @@ class Object:
 			if end == 1:
 				req += str(idx) + ';' + str(pygame.KEYDOWN) + ';' + str(pygame.K_ESCAPE) + '\n'
 			for event in pygame.event.get():
-				q = str(idx) + ';' + str(event.type) + ';'
 				if event.type == pygame.KEYDOWN or event.type == pygame.KEYUP:
+					q = str(idx) + ';' + str(event.type) + ';'
 					q += str(event.key)
-				else:
-					q += '0'
-				q += '\n'
-				req += q
+					q += '\n'
+					req += q
+				if event.type == pygame.QUIT:
+					end = 1
 			req += constants.STR_K
 			sock.send(req.encode('ascii'))
 			resp = sock.recv(1024).decode('ascii')

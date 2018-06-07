@@ -15,10 +15,12 @@ while 1:
 		end = 0
 		start = 0	
 		for event in pygame.event.get():
-			if event.type == pygame.KEYDOWN:
+			if event.type == pygame.QUIT:
+				end = 1
+			elif event.type == pygame.KEYDOWN:
 				if event.key == pygame.K_ESCAPE:
 					end = 1
-			if event.type == pygame.MOUSEBUTTONDOWN:
+			elif event.type == pygame.MOUSEBUTTONDOWN:
 				if event.button == constants.LEFT:
 					coords = pygame.mouse.get_pos()
 					if start_button.check(coords):
