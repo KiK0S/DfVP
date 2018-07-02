@@ -45,6 +45,7 @@ while 1:
 		g.surface.blit(start_button.surface, (start_button.x, start_button.y))
 		g.surface.blit(cnt_text.surface, (cnt_text.x, cnt_text.y))
 		pygame.display.flip()
-	except Exception as e:
+	except BaseException as e:
 		print(e)
 		input('\n kek')
+		break
