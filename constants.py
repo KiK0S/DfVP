@@ -15,7 +15,7 @@ if platform.system() == 'Windows':
 	SLASH = '\\'
 else:
 	SLASH = '/'
-ADDRESS = '95.28.75.3'
+ADDRESS = 'paramonod.ddns.net'
 PREFIX = os.path.dirname(os.path.realpath(sys.argv[0])) + SLASH + 'assets'
 STR_C = 'c'
 STR_S = 's'
