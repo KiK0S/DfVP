@@ -8,6 +8,7 @@ g = game.Object(constants.W, constants.H)
 start_button = text_field.Object('START', constants.W // 2, constants.H // 2, flag=1)
 cnt_text = text_field.Object('', 0, 0)
 sock = socket.socket()
+sock.settimeout(50)
 sock.connect((constants.ADDRESS, constants.PORT))
 idx = int(sock.recv(1024).decode('ascii'))
 while 1: 
