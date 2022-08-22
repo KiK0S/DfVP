@@ -47,6 +47,4 @@ while 1:
 		g.surface.blit(cnt_text.surface, (cnt_text.x, cnt_text.y))
 		pygame.display.flip()
 	except BaseException as e:
-		print(e)
-		input('\n kek')
 		break
