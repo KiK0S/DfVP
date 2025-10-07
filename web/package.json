@@ -1,0 +1,22 @@
+{
+  "name": "dfvp-web",
+  "version": "1.0.0",
+  "description": "Web version of DfVP - Multiplayer tower defense game",
+  "main": "server/server.js",
+  "scripts": {
+    "start": "node server/server.js",
+    "dev": "nodemon server/server.js",
+    "build": "echo 'No build step needed for this project'"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "ws": "^8.14.2",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "keywords": ["game", "multiplayer", "tower-defense", "websocket"],
+  "author": "Original: KiK0S, Web version: AI Assistant",
+  "license": "MIT"
+}
