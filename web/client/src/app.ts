@@ -266,13 +266,17 @@ export class DfvpGame {
   }
 
   private async loadAssets(): Promise<void> {
+    const assetBasePath = import.meta.env.BASE_URL.endsWith('/')
+      ? import.meta.env.BASE_URL
+      : `${import.meta.env.BASE_URL}/`;
+
     const manifest = {
       bundles: [
         {
           name: 'main',
           assets: ASSET_FILES.map((name) => ({
             alias: name.replace(/\.png$/i, ''),
-            src: `/assets/${name}`,
+            src: `${assetBasePath}assets/${name}`,
           })),
         },
       ],
