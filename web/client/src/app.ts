@@ -1,4 +1,5 @@
 import { Application, Assets } from 'pixi.js';
+import type { IApplicationOptions } from 'pixi.js';
 import { GAME_CONSTANTS } from './constants';
 import { GameScene } from './gameScene';
 import type { GameState, InputState, ScreenName, ServerMessage } from './types';
@@ -224,20 +225,38 @@ export class DfvpGame {
   }
 
   private async initializePixi(): Promise<void> {
-    this.pixiApp = new Application();
-    await this.pixiApp.init({
+    const pixiOptions: Partial<IApplicationOptions> = {
       width: GAME_CONSTANTS.W,
       height: GAME_CONSTANTS.H,
       antialias: true,
       backgroundAlpha: 0,
-    });
+    };
+
+    const supportsAsyncInit =
+      typeof (Application.prototype as Application & {
+        init?: (options: Partial<IApplicationOptions>) => Promise<void>;
+      }).init === 'function';
+
+    if (supportsAsyncInit) {
+      const pixiApp = new Application() as Application & {
+        init: (options: Partial<IApplicationOptions>) => Promise<void>;
+      };
+      await pixiApp.init(pixiOptions);
+      this.pixiApp = pixiApp;
+    } else {
+      this.pixiApp = new Application(pixiOptions);
+    }
 
     if (this.loadingOverlay) {
       this.loadingOverlay.remove();
       this.loadingOverlay = null;
     }
     this.canvasFrame.innerHTML = '';
-    this.canvasFrame.appendChild(this.pixiApp.canvas);
+    const canvasElement =
+      'canvas' in this.pixiApp
+        ? (this.pixiApp as Application & { canvas: HTMLCanvasElement }).canvas
+        : (this.pixiApp.view as HTMLCanvasElement);
+    this.canvasFrame.appendChild(canvasElement);
 
     await this.loadAssets();
     this.scene = new GameScene(this.pixiApp, this.assetAliases);
