@@ -2,6 +2,7 @@ const express = require('express');
 const http = require('http');
 const WebSocket = require('ws');
 const path = require('path');
+const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
 const GameHandler = require('./game-handler');
 const RoomManager = require('./room-manager');
@@ -10,8 +11,24 @@ const app = express();
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
-// Serve static files from client directory
-app.use(express.static(path.join(__dirname, '../client')));
+const clientRoot = path.join(__dirname, '../client');
+const distDir = path.join(clientRoot, 'dist');
+const staticDir = fs.existsSync(distDir) ? distDir : clientRoot;
+
+app.use(express.static(staticDir));
+
+app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api') || req.path.startsWith('/ws')) {
+        return next();
+    }
+
+    const indexFile = path.join(staticDir, 'index.html');
+    if (fs.existsSync(indexFile)) {
+        res.sendFile(indexFile);
+    } else {
+        res.status(404).send('Client build not found. Run "npm run build".');
+    }
+});
 
 // Room manager instance
 const roomManager = new RoomManager();

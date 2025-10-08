@@ -1,70 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DfVP - Multiplayer Tower Defense</title>
-    <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-    <div id="app">
-        <!-- Lobby Screen -->
-        <div id="lobby" class="screen active">
-            <div class="lobby-container">
-                <h1>DfVP</h1>
-                <p class="subtitle">Multiplayer Tower Defense</p>
-                
-                <div class="room-section">
-                    <h2>Join a Room</h2>
-                    <div class="input-group">
-                        <input type="text" id="roomCode" placeholder="Enter room code (e.g., ABC123)" maxlength="6">
-                        <button id="joinRoom" class="btn btn-primary">Join Room</button>
-                    </div>
-                </div>
-                
-                <div class="room-section">
-                    <h2>Create a New Room</h2>
-                    <button id="createRoom" class="btn btn-secondary">Create New Room</button>
-                </div>
-                
-                <div id="roomInfo" class="room-info hidden">
-                    <h3>Room: <span id="currentRoomCode"></span></h3>
-                    <p>Players: <span id="playerCount">0</span>/3</p>
-                    <p id="roomStatus">Waiting for players...</p>
-                    <div class="room-buttons">
-                        <button id="startGame" class="btn btn-success hidden">Start Game</button>
-                        <button id="leaveRoom" class="btn btn-warning">Leave Room</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Game Screen -->
-        <div id="game" class="screen">
-            <div class="game-header">
-                <div class="game-info">
-                    <span>Score: <span id="score">0</span></span>
-                    <span>Lives: <span id="lives">3</span></span>
-                    <span>Players: <span id="gamePlayerCount">0</span></span>
-                    <span>Wave: <span id="wave">1</span></span>
-                </div>
-                <button id="leaveGame" class="btn btn-danger">Leave Game</button>
-            </div>
-            <canvas id="gameCanvas" width="600" height="600"></canvas>
-            <div class="controls-info">
-                <p>Controls: WASD to move, L to shoot</p>
-            </div>
-        </div>
-        
-        <!-- Loading Screen -->
-        <div id="loading" class="screen">
-            <div class="loading-container">
-                <div class="spinner"></div>
-                <p>Connecting...</p>
-            </div>
-        </div>
-    </div>
-    
-    <script src="game.js"></script>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Defense for Very Pixi - a polished web remake of the DfVP tower defense game built with PixiJS." />
+    <title>Defense for Very Pixi</title>
+    <link rel="icon" type="image/png" href="/assets/player0.png" />
+  </head>
+  <body>
+    <noscript>You need JavaScript enabled to play Defense for Very Pixi.</noscript>
+    <div id="app" class="app-root"></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
 </html>
