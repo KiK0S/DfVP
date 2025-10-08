@@ -67,6 +67,9 @@ export class DfvpGame {
   private livesValue!: HTMLElement;
   private playerListRoot!: HTMLElement;
   private canvasFrame!: HTMLElement;
+  private appShell!: HTMLElement;
+  private menuToggleButton!: HTMLButtonElement;
+  private isFullscreen = false;
 
   constructor(root: HTMLElement) {
     this.root = root;
@@ -145,6 +148,7 @@ export class DfvpGame {
         </aside>
 
         <section class="panel canvas-area">
+          <button class="canvas-menu-toggle" id="toggleMenu" type="button">Menu</button>
           <div class="canvas-frame" id="canvasFrame">
             <div class="status-banner" id="canvasLoading">Preparing renderer…</div>
           </div>
@@ -172,6 +176,7 @@ export class DfvpGame {
   }
 
   private cacheElements(): void {
+    this.appShell = this.root.querySelector('.app-shell') as HTMLElement;
     this.screens = {
       lobby: this.root.querySelector('[data-screen="lobby"]') as HTMLElement,
       loading: this.root.querySelector('[data-screen="loading"]') as HTMLElement,
@@ -198,7 +203,15 @@ export class DfvpGame {
     this.livesValue = this.root.querySelector('#livesValue') as HTMLElement;
     this.playerListRoot = this.root.querySelector('#playerList') as HTMLElement;
     this.canvasFrame = this.root.querySelector('#canvasFrame') as HTMLElement;
+    this.menuToggleButton = this.root.querySelector('#toggleMenu') as HTMLButtonElement;
     this.loadingOverlay = this.root.querySelector('#canvasLoading') as HTMLElement;
+
+    const suggestedServer = this.defaultServerUrl();
+    if (suggestedServer && !this.serverField.value) {
+      this.serverField.value = suggestedServer;
+    }
+
+    this.updateMenuToggleLabel(false);
   }
 
   private attachEventListeners(): void {
@@ -208,6 +221,7 @@ export class DfvpGame {
     this.startGameButton.addEventListener('click', () => this.requestStartGame());
     this.leaveRoomButton.addEventListener('click', () => this.leaveRoom());
     this.leaveGameButton.addEventListener('click', () => this.leaveGame());
+    this.menuToggleButton.addEventListener('click', () => this.toggleMenuOverlay());
 
     this.roomCodeField.addEventListener('keypress', (event) => {
       if (event.key === 'Enter') {
@@ -312,6 +326,7 @@ export class DfvpGame {
     }
 
     this.soloActive = true;
+    this.setFullscreenMode(true);
     this.soloRunner.start();
     this.updateInputState();
   }
@@ -325,6 +340,7 @@ export class DfvpGame {
     this.setGameSummary('The tower has fallen! Hit "Start Solo Run" to try again.');
     this.setStatus('Tower destroyed. Solo run complete.', 'error');
     this.soloActive = false;
+    this.setFullscreenMode(false);
   }
 
   private handleCreateRoom(): void {
@@ -378,6 +394,7 @@ export class DfvpGame {
       console.error(error);
       this.setStatus('Unable to open WebSocket connection.', 'error');
       this.showScreen('lobby');
+      this.setFullscreenMode(false);
       this.websocket = null;
       return;
     }
@@ -398,6 +415,7 @@ export class DfvpGame {
     this.websocket.onerror = () => {
       this.setStatus('Connection error. Please verify the server address.', 'error');
       this.showScreen('lobby');
+      this.setFullscreenMode(false);
     };
 
     this.websocket.onclose = () => {
@@ -408,6 +426,7 @@ export class DfvpGame {
       this.websocket = null;
       this.playerId = null;
       this.roomCode = null;
+      this.setFullscreenMode(false);
     };
   }
 
@@ -419,6 +438,7 @@ export class DfvpGame {
         this.setStatus(`Joined room ${message.roomCode}.`, 'success');
         this.updateRoomInfo(message.playerCount, message.status, message.canStart);
         this.showScreen('room');
+        this.setFullscreenMode(false);
         this.scene?.clear();
         this.scene?.setLocalPlayerId(this.playerId);
         this.resetHud();
@@ -433,6 +453,7 @@ export class DfvpGame {
         this.setStatus('You left the room.', 'success');
         this.cleanupConnection();
         this.showScreen('lobby');
+        this.setFullscreenMode(false);
         break;
 
       case 'game_start':
@@ -445,6 +466,7 @@ export class DfvpGame {
           this.scene?.setLocalPlayerId(this.playerId);
         }
         this.resetHud();
+        this.setFullscreenMode(true);
         break;
 
       case 'game_state':
@@ -455,6 +477,7 @@ export class DfvpGame {
         this.setGameSummary('Game over! You can leave the room or start another round.');
         this.setStatus('The round has ended.', 'error');
         this.showScreen('room');
+        this.setFullscreenMode(false);
         break;
 
       case 'error':
@@ -482,6 +505,7 @@ export class DfvpGame {
       this.websocket.send(JSON.stringify({ type: 'leave_room' }));
     }
     this.cleanupConnection();
+    this.setFullscreenMode(false);
     this.showScreen('lobby');
     this.resetHud();
   }
@@ -492,6 +516,7 @@ export class DfvpGame {
       this.showScreen('lobby');
       this.setStatus('Exited solo run.', 'success');
       this.resetHud();
+      this.setFullscreenMode(false);
       return;
     }
 
@@ -499,6 +524,7 @@ export class DfvpGame {
       this.leaveRoom();
     } else {
       this.showScreen('lobby');
+      this.setFullscreenMode(false);
     }
   }
 
@@ -513,11 +539,20 @@ export class DfvpGame {
     }
     this.playerId = null;
     this.roomCode = null;
+    this.setFullscreenMode(false);
   }
 
   private handleKey(event: KeyboardEvent, pressed: boolean): void {
     const activeElement = document.activeElement;
     if (activeElement instanceof HTMLInputElement || activeElement instanceof HTMLTextAreaElement) {
+      return;
+    }
+
+    if (event.key === 'Escape') {
+      if (pressed && this.isFullscreen) {
+        event.preventDefault();
+        this.toggleMenuOverlay();
+      }
       return;
     }
 
@@ -577,10 +612,52 @@ export class DfvpGame {
       return null;
     }
 
+    const host = hostname || 'localhost';
+
+    const devPorts = new Set(['5173', '4173', '4174']);
+    if (import.meta.env.DEV || devPorts.has(port)) {
+      return `ws://${host}:3000`;
+    }
+
     const secure = protocol === 'https:';
-    const fallbackPort = secure ? '443' : '3000';
-    const finalPort = port || fallbackPort;
-    return `${secure ? 'wss' : 'ws'}://${hostname}${finalPort ? `:${finalPort}` : ''}`;
+    const omitPort = (secure && (port === '' || port === '443')) || (!secure && (port === '' || port === '80'));
+    const portSegment = omitPort ? '' : port ? `:${port}` : '';
+    return `${secure ? 'wss' : 'ws'}://${host}${portSegment}`;
+  }
+
+  private setFullscreenMode(active: boolean): void {
+    if (!this.appShell) {
+      return;
+    }
+
+    this.isFullscreen = active;
+
+    if (active) {
+      this.appShell.classList.add('is-playing');
+      this.appShell.classList.remove('is-menu-open');
+    } else {
+      this.appShell.classList.remove('is-playing');
+      this.appShell.classList.remove('is-menu-open');
+    }
+
+    this.updateMenuToggleLabel();
+  }
+
+  private toggleMenuOverlay(): void {
+    if (!this.isFullscreen) {
+      return;
+    }
+    const isOpen = this.appShell.classList.toggle('is-menu-open');
+    this.updateMenuToggleLabel(isOpen);
+  }
+
+  private updateMenuToggleLabel(forceState?: boolean): void {
+    if (!this.menuToggleButton) {
+      return;
+    }
+    const menuOpen = forceState ?? this.appShell.classList.contains('is-menu-open');
+    this.menuToggleButton.textContent = menuOpen ? 'Resume' : 'Menu';
+    this.menuToggleButton.setAttribute('aria-pressed', menuOpen ? 'true' : 'false');
   }
 
   private showScreen(screen: ScreenName): void {

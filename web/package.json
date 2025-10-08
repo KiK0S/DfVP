@@ -3,12 +3,16 @@
   "version": "1.0.0",
   "description": "Web version of DfVP - Multiplayer tower defense game",
   "main": "server/server.js",
+  "bin": {
+    "dfvp-room": "./bin/dfvp-room.js"
+  },
   "scripts": {
     "start": "node server/server.js",
     "dev": "vite --config client/vite.config.ts",
     "dev:server": "nodemon server/server.js",
     "build": "vite build --config client/vite.config.ts",
-    "preview": "vite preview --config client/vite.config.ts"
+    "preview": "vite preview --config client/vite.config.ts",
+    "package:host": "pkg bin/dfvp-room.js --out-path dist-host --targets node18-linux-x64,node18-linux-arm64,node18-macos-x64,node18-macos-arm64,node18-win-x64"
   },
   "dependencies": {
     "express": "^4.18.2",
@@ -18,8 +22,14 @@
   },
   "devDependencies": {
     "nodemon": "^3.0.1",
+    "pkg": "^5.8.1",
     "typescript": "^5.4.0",
     "vite": "^5.1.0"
+  },
+  "pkg": {
+    "assets": [
+      "server/**/*.js"
+    ]
   },
   "keywords": ["game", "multiplayer", "tower-defense", "websocket"],
   "author": "Original: KiK0S, Web version: AI Assistant",

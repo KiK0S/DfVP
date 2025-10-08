@@ -22,7 +22,9 @@ body {
   width: min(1120px, 100%);
   display: grid;
   grid-template-columns: minmax(280px, 320px) 1fr;
-  gap: clamp(1.25rem, 2vw, 2rem);
+  --shell-gap: clamp(1.25rem, 2vw, 2rem);
+  gap: var(--shell-gap);
+  transition: gap 0.25s ease, grid-template-columns 0.25s ease;
 }
 
 .panel {
@@ -194,6 +196,59 @@ button:not(:disabled):hover {
   border-radius: 18px;
   max-width: 100%;
   image-rendering: pixelated;
+}
+
+.canvas-menu-toggle {
+  position: absolute;
+  top: clamp(0.75rem, 1.2vw, 1.1rem);
+  left: clamp(0.75rem, 1.2vw, 1.1rem);
+  z-index: 5;
+  padding: 0.65rem 1.1rem;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.82);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  color: #e2e8f0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  cursor: pointer;
+  display: none;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.canvas-menu-toggle:hover {
+  background: rgba(30, 41, 59, 0.9);
+  transform: translateY(-1px);
+}
+
+.app-shell.is-playing {
+  grid-template-columns: 0 1fr;
+  gap: 0;
+}
+
+.app-shell.is-playing .panel:first-child {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(-32px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.app-shell.is-playing .canvas-menu-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.app-shell.is-playing.is-menu-open {
+  grid-template-columns: minmax(280px, 320px) 1fr;
+  gap: var(--shell-gap);
+}
+
+.app-shell.is-playing.is-menu-open .panel:first-child {
+  opacity: 1;
+  pointer-events: auto;
+  transform: none;
 }
 
 .hud {

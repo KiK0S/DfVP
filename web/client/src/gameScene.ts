@@ -70,26 +70,146 @@ class PlayerView {
   }
 }
 
-function resolveBulletTexture(state: BulletState, aliases: Set<string>): Texture {
-  const alias = `bullet${state.idx}`;
-  if (aliases.has(alias)) {
-    const texture = Texture.from(alias);
-    if (texture.baseTexture.valid) {
-      return texture;
-    }
-  }
-  return Texture.from('bullet');
+type TexturedSprite = Sprite & { __dfvpAlias?: string };
+
+function bulletTextureAlias(state: BulletState): string {
+  return state.idx ? `bullet${state.idx}` : 'bullet';
 }
 
-function resolveEnemyTexture(state: EnemyState, aliases: Set<string>): Texture {
-  const alias = state.idx ? `enemy${state.idx}` : 'enemy';
+function enemyTextureAlias(state: EnemyState): string {
+  return state.idx ? `enemy${state.idx}` : 'enemy';
+}
+
+function resolveBulletTexture(state: BulletState, aliases: Set<string>): { texture: Texture; alias: string } {
+  const alias = bulletTextureAlias(state);
   if (aliases.has(alias)) {
     const texture = Texture.from(alias);
     if (texture.baseTexture.valid) {
-      return texture;
+      return { texture, alias };
     }
   }
-  return Texture.from('enemy');
+  return { texture: Texture.from('bullet'), alias: 'bullet' };
+}
+
+function resolveEnemyTexture(state: EnemyState, aliases: Set<string>): { texture: Texture; alias: string } {
+  const alias = enemyTextureAlias(state);
+  if (aliases.has(alias)) {
+    const texture = Texture.from(alias);
+    if (texture.baseTexture.valid) {
+      return { texture, alias };
+    }
+  }
+  return { texture: Texture.from('enemy'), alias: 'enemy' };
+}
+
+function ensureSpriteTexture(sprite: TexturedSprite, alias: string, texture: Texture): void {
+  if (sprite.__dfvpAlias === alias) {
+    return;
+  }
+  sprite.texture = texture;
+  sprite.__dfvpAlias = alias;
+}
+
+type FillStyle = number | { color: number; alpha?: number };
+type StrokeStyle = { color: number; width: number; alpha?: number };
+
+function renderRoundedRect(
+  graphics: Graphics,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  radius: number,
+  style: { fill?: FillStyle; stroke?: StrokeStyle } = {},
+): void {
+  const g = graphics as Graphics & {
+    roundRect?: (x: number, y: number, width: number, height: number, r?: number) => Graphics;
+    drawRoundedRect?: (x: number, y: number, width: number, height: number, r?: number) => Graphics;
+    drawRect?: (x: number, y: number, width: number, height: number) => Graphics;
+    fill?: (options: FillStyle | { color: number; alpha?: number }) => Graphics;
+    stroke?: (options: StrokeStyle) => Graphics;
+    beginFill?: (color?: number, alpha?: number) => Graphics;
+    endFill?: () => Graphics;
+    lineStyle?: (width?: number, color?: number, alpha?: number) => Graphics;
+  };
+
+  const normalizedFill =
+    typeof style.fill === 'number'
+      ? { color: style.fill, alpha: 1 }
+      : style.fill;
+
+  if (typeof g.roundRect === 'function' && (g.fill || g.stroke)) {
+    g.roundRect(x, y, w, h, radius);
+    if (normalizedFill && typeof g.fill === 'function') {
+      g.fill(normalizedFill);
+    }
+    if (style.stroke && typeof g.stroke === 'function') {
+      g.stroke(style.stroke);
+    }
+    return;
+  }
+
+  if (style.stroke && typeof g.lineStyle === 'function') {
+    const { width, color, alpha } = style.stroke;
+    g.lineStyle(width ?? 0, color ?? 0xffffff, alpha ?? 1);
+  }
+
+  if (normalizedFill && typeof g.beginFill === 'function') {
+    g.beginFill(normalizedFill.color ?? 0xffffff, normalizedFill.alpha ?? 1);
+  }
+
+  if (typeof g.drawRoundedRect === 'function') {
+    g.drawRoundedRect(x, y, w, h, radius);
+  } else if (typeof g.drawRect === 'function') {
+    g.drawRect(x, y, w, h);
+  }
+
+  if (normalizedFill && typeof g.endFill === 'function') {
+    g.endFill();
+  }
+}
+
+function renderCircle(
+  graphics: Graphics,
+  x: number,
+  y: number,
+  radius: number,
+  style: { fill?: FillStyle } = {},
+): void {
+  const g = graphics as Graphics & {
+    circle?: (x: number, y: number, radius: number) => Graphics;
+    drawCircle?: (x: number, y: number, radius: number) => Graphics;
+    fill?: (options: FillStyle | { color: number; alpha?: number }) => Graphics;
+    beginFill?: (color?: number, alpha?: number) => Graphics;
+    endFill?: () => Graphics;
+  };
+
+  const normalizedFill =
+    typeof style.fill === 'number'
+      ? { color: style.fill, alpha: 1 }
+      : style.fill;
+
+  if (typeof g.circle === 'function' && typeof g.fill === 'function') {
+    g.circle(x, y, radius);
+    if (normalizedFill) {
+      g.fill(normalizedFill);
+    }
+    return;
+  }
+
+  if (normalizedFill && typeof g.beginFill === 'function') {
+    g.beginFill(normalizedFill.color ?? 0xffffff, normalizedFill.alpha ?? 1);
+  }
+
+  if (typeof g.drawCircle === 'function') {
+    g.drawCircle(x, y, radius);
+  } else if (typeof g.circle === 'function') {
+    g.circle(x, y, radius);
+  }
+
+  if (normalizedFill && typeof g.endFill === 'function') {
+    g.endFill();
+  }
 }
 
 export class GameScene {
@@ -165,15 +285,17 @@ export class GameScene {
       this.playfield.zIndex = 1;
     } else {
       const fallback = new Graphics();
-      fallback.roundRect(0, 0, GAME_CONSTANTS.W, GAME_CONSTANTS.H, 24);
-      fallback.fill(0x0f172a);
-      fallback.stroke({ color: 0x1e293b, width: 4, alpha: 0.9 });
+      renderRoundedRect(fallback, 0, 0, GAME_CONSTANTS.W, GAME_CONSTANTS.H, 24, {
+        fill: { color: 0x0f172a, alpha: 1 },
+        stroke: { color: 0x1e293b, width: 4, alpha: 0.9 },
+      });
       this.container.addChild(fallback);
     }
 
     this.overlay.clear();
-    this.overlay.roundRect(0, 0, GAME_CONSTANTS.W, GAME_CONSTANTS.H, 24);
-    this.overlay.stroke({ color: 0x334155, width: 4, alpha: 0.7 });
+    renderRoundedRect(this.overlay, 0, 0, GAME_CONSTANTS.W, GAME_CONSTANTS.H, 24, {
+      stroke: { color: 0x334155, width: 4, alpha: 0.7 },
+    });
     this.overlay.alpha = 0.9;
   }
 
@@ -188,8 +310,9 @@ export class GameScene {
         this.playfield.addChild(this.towerSprite);
       } else {
         const fallback = new Graphics();
-        fallback.circle(0, 0, state.tower.size / 2);
-        fallback.fill(0x38bdf8);
+        renderCircle(fallback, 0, 0, state.tower.size / 2, {
+          fill: { color: 0x38bdf8, alpha: 1 },
+        });
         fallback.alpha = 0.75;
         const texture = this.app.renderer.generateTexture(fallback);
         this.towerSprite = new Sprite(texture);
@@ -230,13 +353,18 @@ export class GameScene {
       bullets,
       this.bulletSprites,
       (state) => {
-        const sprite = new Sprite(resolveBulletTexture(state, this.textureAliases));
+        const { texture, alias } = resolveBulletTexture(state, this.textureAliases);
+        const sprite = new Sprite(texture) as TexturedSprite;
+        sprite.__dfvpAlias = alias;
         sprite.anchor.set(0.5);
         sprite.scale.set(0.8);
         this.playfield.addChild(sprite);
         return sprite;
       },
       (sprite, state) => {
+        const textured = sprite as TexturedSprite;
+        const { texture, alias } = resolveBulletTexture(state, this.textureAliases);
+        ensureSpriteTexture(textured, alias, texture);
         sprite.position.set(state.x + state.size / 2, state.y + state.size / 2);
         sprite.rotation = state.alpha;
       },
@@ -248,13 +376,18 @@ export class GameScene {
       enemies,
       this.enemySprites,
       (state) => {
-        const sprite = new Sprite(resolveEnemyTexture(state, this.textureAliases));
+        const { texture, alias } = resolveEnemyTexture(state, this.textureAliases);
+        const sprite = new Sprite(texture) as TexturedSprite;
+        sprite.__dfvpAlias = alias;
         sprite.anchor.set(0.5);
         sprite.scale.set(1.05);
         this.playfield.addChild(sprite);
         return sprite;
       },
       (sprite, state) => {
+        const textured = sprite as TexturedSprite;
+        const { texture, alias } = resolveEnemyTexture(state, this.textureAliases);
+        ensureSpriteTexture(textured, alias, texture);
         sprite.position.set(state.x + state.size / 2, state.y + state.size / 2);
       },
     );

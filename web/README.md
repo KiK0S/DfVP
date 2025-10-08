@@ -65,6 +65,24 @@ npm run dev:server
 
 The server uses Express for static hosting and `ws` for WebSockets. By default it listens on `http://localhost:3000`. When running both dev servers, configure the client to use `ws://localhost:3000` as the server address from the lobby panel.
 
+### Quick peer-hosted room (npx)
+
+After publishing the package (see below), any player can host a multiplayer room without cloning the repo:
+
+```bash
+npx dfvp-room --public
+```
+
+- `--public` exposes the room on all interfaces (`0.0.0.0`) so friends on the same network can join.
+- Use `--port 4000` (or any port) to override the default `3000`.
+- Pass `--static-dir path/to/dist` if you also want to serve a local client build.
+
+While developing locally you can run the same CLI straight from the repository:
+
+```bash
+node bin/dfvp-room.js --public
+```
+
 ### Production build
 
 ```bash
@@ -76,6 +94,24 @@ This command bundles the PixiJS client with Vite into `web/client/dist`. The Nod
 ```bash
 npm start
 ```
+
+### Build standalone host executables
+
+To generate ready-to-share binaries (Windows, macOS Intel/ARM, Linux Intel/ARM) run:
+
+```bash
+npm run package:host
+```
+
+Artifacts are written to `web/dist-host/`:
+
+- `dfvp-room-win-x64.exe`
+- `dfvp-room-macos-x64`
+- `dfvp-room-macos-arm64`
+- `dfvp-room-linux-x64`
+- `dfvp-room-linux-arm64`
+
+Distribute the binary that matches the host player’s platform; they can then double-click or run it from a terminal to start a room.
 
 ### Solo mode
 
@@ -90,6 +126,15 @@ The repository contains a workflow at `.github/workflows/deploy.yml` that:
 3. Publishes `web/client/dist` to GitHub Pages using the official `actions/deploy-pages` action
 
 Push to `main` (or run the workflow manually) to refresh the live build. Make sure GitHub Pages is configured to deploy from GitHub Actions.
+
+To distribute the room host CLI publicly, publish the `web` package to npm (once you’re ready for others to use it):
+
+```bash
+cd web
+npm publish --access public
+```
+
+After publishing, `npx dfvp-room` will pull the latest version automatically.
 
 ## Multiplayer flow
 
