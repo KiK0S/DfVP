@@ -1,155 +1,110 @@
-# DfVP Web - Multiplayer Tower Defense Game
+# Defense for Very Pixi (DfVP Web)
 
-A web-based version of the original DfVP Python game, featuring modern multiplayer functionality with room-based gameplay.
+A fully refreshed web remake of the original DfVP tower-defense prototype. The client has been rebuilt in **TypeScript + PixiJS**, ships with a polished lobby/game overlay, supports both **solo practice runs** and **WebSocket multiplayer rooms**, and is ready for one-click deployment to GitHub Pages.
 
-## Features
+## Highlights
 
-- **Modern Web Interface**: Clean, responsive UI with room-based multiplayer
-- **Real-time Gameplay**: WebSocket-based communication for smooth multiplayer experience
-- **Room System**: Generate or join rooms using 6-character room codes
-- **Tower Defense**: Defend the central tower from waves of enemies
-- **Multiplayer Support**: Up to 3 players per room
-- **Cross-platform**: Works on any modern web browser
+- 🎨 **PixiJS renderer** – hardware accelerated sprites, smoother animations, and a layered playfield
+- 🧑‍🤝‍🧑 **Room-based multiplayer** – create or join rooms with six-character codes
+- 🧑‍💻 **Solo mode** – play instantly without a server using the built-in simulation of the Python game logic
+- 🧭 **Responsive UI** – modern glassmorphism inspired layout, HUD overlays, and keyboard hints
+- 🚀 **Automated deploys** – GitHub Actions workflow builds the Vite client and publishes it to GitHub Pages
 
-## Game Controls
+## Controls
 
-- **WASD**: Move your player
-- **L**: Shoot bullets (only while moving)
-- **Objective**: Defend the tower from enemies while scoring points
+- `WASD` – move the defender
+- `L` – fire while moving
+- Keep enemies away from the central tower and survive the incoming waves.
 
-## Setup Instructions
+## Project structure
 
-### Prerequisites
+```
+web/
+├── client/                 # PixiJS/Vite frontend
+│   ├── public/assets/      # Sprites copied verbatim into the build
+│   ├── src/                # TypeScript sources and Pixi scene management
+│   ├── index.html          # Vite entry point
+│   ├── tsconfig.json
+│   └── vite.config.ts
+├── server/                 # Node.js WebSocket game server
+│   ├── server.js
+│   ├── room-manager.js
+│   └── game-handler.js
+├── package.json            # Scripts for client + server
+├── package-lock.json
+└── README.md               # This guide
+```
 
-- Node.js (version 14 or higher)
-- npm (comes with Node.js)
+## Getting started
 
-### Installation
+### Requirements
 
-1. Navigate to the web directory:
-   ```bash
-   cd web
-   ```
+- Node.js 18+
+- npm (bundled with Node.js)
 
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
+### Install dependencies
 
-3. Start the server:
-   ```bash
-   npm start
-   ```
+```bash
+cd web
+npm install
+```
 
-4. Open your browser and go to:
-   ```
-   http://localhost:3000
-   ```
+### Run the PixiJS client (Vite dev server)
 
-### Development Mode
-
-For development with auto-restart on file changes:
 ```bash
 npm run dev
 ```
 
-## How to Play
+The client will be available on <http://localhost:5173>. You can join an external multiplayer room by entering the WebSocket URL (for example `ws://localhost:3000`).
 
-1. **Create a Room**: Click "Create New Room" to generate a unique room code
-2. **Share Room Code**: Share the 6-character room code with friends
-3. **Join Room**: Other players can enter the room code and click "Join Room"
-4. **Start Game**: Once players have joined, click "Start Game"
-5. **Play**: Use WASD to move and L to shoot at enemies
+### Run the multiplayer server
 
-## Game Mechanics
-
-- **Players**: Move around the arena and shoot bullets at enemies
-- **Enemies**: Spawn in waves and move toward the central tower
-- **Bullets**: Can only be fired while moving, travel in the direction of movement
-- **Scoring**: Earn points by destroying enemies
-- **Game Over**: Game ends when an enemy reaches the tower
-
-## Technical Details
-
-### Architecture
-
-- **Frontend**: HTML5 Canvas + JavaScript
-- **Backend**: Node.js with Express and WebSocket
-- **Communication**: WebSocket for real-time game state synchronization
-- **Assets**: Original game sprites converted for web use
-
-### File Structure
-
-```
-web/
-├── client/
-│   ├── index.html          # Main game interface
-│   ├── game.js             # Client-side game logic
-│   ├── styles.css          # Modern UI styling
-│   └── assets/             # Game sprites and images
-├── server/
-│   ├── server.js           # Main server with WebSocket handling
-│   ├── room-manager.js     # Room creation and management
-│   └── game-handler.js     # Server-side game logic
-├── package.json            # Dependencies and scripts
-└── README.md              # This file
+```bash
+npm run dev:server
 ```
 
-### Game Logic
+The server uses Express for static hosting and `ws` for WebSockets. By default it listens on `http://localhost:3000`. When running both dev servers, configure the client to use `ws://localhost:3000` as the server address from the lobby panel.
 
-The web version maintains the same game mechanics as the original Python version:
-- Identical movement physics and collision detection
-- Same enemy spawning patterns and wave system
-- Matching scoring and game progression
-- Preserved player controls and shooting mechanics
+### Production build
+
+```bash
+npm run build
+```
+
+This command bundles the PixiJS client with Vite into `web/client/dist`. The Node server automatically serves the production build when it detects the `dist` folder. You can then start the server normally:
+
+```bash
+npm start
+```
+
+### Solo mode
+
+Hit **Start Solo Run** in the lobby to launch an offline simulation that mirrors the server-side physics and enemy waves. Solo mode works even when the multiplayer server is unavailable, which makes it perfect for GitHub Pages deployments.
 
 ## Deployment
 
-### Local Development
-The game runs on `http://localhost:3000` by default.
+The repository contains a workflow at `.github/workflows/deploy.yml` that:
 
-### Production Deployment
-For production deployment, you can:
-1. Set the `PORT` environment variable to your desired port
-2. Use a reverse proxy (nginx, Apache) for SSL termination
-3. Deploy to cloud platforms like Heroku, Railway, or Vercel
+1. Installs the `web` dependencies
+2. Builds the Vite client
+3. Publishes `web/client/dist` to GitHub Pages using the official `actions/deploy-pages` action
 
-## Browser Compatibility
+Push to `main` (or run the workflow manually) to refresh the live build. Make sure GitHub Pages is configured to deploy from GitHub Actions.
 
-- Chrome 60+
-- Firefox 55+
-- Safari 12+
-- Edge 79+
+## Multiplayer flow
+
+1. Create a room from the lobby – a six character code is generated automatically
+2. Share the code and optionally the server address with friends on the same network
+3. When everyone is ready, hit **Start match**
+4. Coordinate defenses and protect the tower for as long as possible
 
 ## Troubleshooting
 
-### Common Issues
-
-1. **"Failed to connect to server"**
-   - Make sure the server is running (`npm start`)
-   - Check if port 3000 is available
-   - Try refreshing the page
-
-2. **"Room is full"**
-   - Maximum 3 players per room
-   - Create a new room or wait for players to leave
-
-3. **Assets not loading**
-   - Check that all PNG files are in the `client/assets/` directory
-   - Clear browser cache and refresh
-
-### Development Tips
-
-- Use browser developer tools to monitor WebSocket connections
-- Check server console for connection logs and errors
-- Test multiplayer by opening multiple browser tabs
-
-## License
-
-This web version maintains the same license as the original game.
+- **Unable to connect to server** – verify the WebSocket URL (must begin with `ws://` or `wss://`) and ensure the Node server is running
+- **Assets missing after deployment** – rerun `npm run build`; the workflow copies assets from `client/public`
+- **Controls unresponsive** – the lobby ignores key presses while form inputs are focused; click on the canvas area before playing
 
 ## Credits
 
-- Original game: KiK0S
-- Web conversion: AI Assistant
-- Game assets: Original DfVP assets
+- Original concept & assets: **KiK0S**
+- Web & PixiJS rebuild: **AI Assistant**

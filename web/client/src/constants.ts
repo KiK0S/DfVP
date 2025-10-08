@@ -1,0 +1,18 @@
+export const GAME_CONSTANTS = {
+  W: 600,
+  H: 600,
+  FPS: 30,
+  ENEMY_SPEED: 1.5,
+  BULLET_SPEED: 15,
+  MAX_P_SPEED: 5,
+  FALL_P_SPEED: 0.5,
+  RISE_P_SPEED: 0.75,
+  P_BAREER: 1,
+  WAVES: 3,
+  NUM_PER_WAVE: 4,
+  COLOR_PER_WAVE: 1,
+  WAVE_TIME: 5,
+  MAXPLAYER: 3,
+} as const;
+
+export const FRAME_TIME_MS = 1000 / GAME_CONSTANTS.FPS;
