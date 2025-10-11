@@ -1,5 +1,6 @@
 const express = require('express');
 const http = require('http');
+const https = require('https');
 const WebSocket = require('ws');
 const path = require('path');
 const fs = require('fs');
@@ -25,11 +26,22 @@ function createRoomServer(options = {}) {
     host = process.env.HOST || '127.0.0.1',
     serveStatic = true,
     staticDir: staticDirOption = null,
+    tls = null,
     onReady,
   } = options;
 
   const app = express();
-  const server = http.createServer(app);
+  const useHttps = Boolean(tls && tls.key && tls.cert);
+  const server = useHttps
+    ? https.createServer(
+        {
+          key: tls.key,
+          cert: tls.cert,
+          ca: tls.ca,
+        },
+        app,
+      )
+    : http.createServer(app);
   const wss = new WebSocket.Server({ server });
 
   const clientRoot = path.join(__dirname, '../client');
@@ -245,12 +257,15 @@ function createRoomServer(options = {}) {
       return new Promise((resolve) => {
         server.listen(port, host, () => {
           const info = { port, host };
+          const scheme = useHttps ? 'https' : 'http';
+          const wsScheme = useHttps ? 'wss' : 'ws';
+
           if (typeof onReady === 'function') {
             onReady(info);
           } else {
             const displayHost = host === '0.0.0.0' ? 'localhost' : host;
-            console.log(`[dfvp-room] listening on http://${displayHost}:${port}`);
-            console.log(`[dfvp-room] WebSocket endpoint ws://${displayHost}:${port}`);
+            console.log(`[dfvp-room] listening on ${scheme}://${displayHost}:${port}`);
+            console.log(`[dfvp-room] WebSocket endpoint ${wsScheme}://${displayHost}:${port}`);
           }
           resolve(info);
         });

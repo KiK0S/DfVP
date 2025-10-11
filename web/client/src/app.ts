@@ -30,6 +30,10 @@ const KEY_BINDINGS: Record<string, keyof InputState> = {
   l: 'l',
 };
 
+function createEmptyInputState(): InputState {
+  return { w: false, a: false, s: false, d: false, l: false };
+}
+
 export class DfvpGame {
   private readonly root: HTMLElement;
   private pixiApp!: Application;
@@ -40,8 +44,10 @@ export class DfvpGame {
   private roomCode: string | null = null;
   private readonly assetAliases = new Set<string>();
   private assetsLoaded = false;
-  private lastInput: InputState = { w: false, a: false, s: false, d: false, l: false };
-  private sentInput: InputState = { ...this.lastInput };
+  private keyboardInput: InputState = createEmptyInputState();
+  private touchInput: InputState = createEmptyInputState();
+  private lastInput: InputState = createEmptyInputState();
+  private sentInput: InputState = createEmptyInputState();
   private soloActive = false;
   private currentScreen: ScreenName = 'lobby';
   private loadingOverlay: HTMLElement | null = null;
@@ -69,6 +75,22 @@ export class DfvpGame {
   private canvasFrame!: HTMLElement;
   private appShell!: HTMLElement;
   private menuToggleButton!: HTMLButtonElement;
+  private touchControlsRoot: HTMLElement | null = null;
+  private joystickSurface: HTMLElement | null = null;
+  private joystickBase: HTMLElement | null = null;
+  private joystickThumb: HTMLElement | null = null;
+  private shootButton: HTMLButtonElement | null = null;
+  private touchControlsActive = false;
+  private joystickPointerId: number | null = null;
+  private pointerCoarseQuery: MediaQueryList | null = null;
+  private joystickBounds: DOMRect | null = null;
+  private readonly handleViewportChange = () => this.evaluateTouchControls();
+  private readonly handlePointerMediaChange = () => this.evaluateTouchControls();
+  private readonly handleJoystickPointerDown = (event: PointerEvent) => this.onJoystickPointerDown(event);
+  private readonly handleJoystickPointerMove = (event: PointerEvent) => this.onJoystickPointerMove(event);
+  private readonly handleJoystickPointerUp = (event: PointerEvent) => this.onJoystickPointerUp(event);
+  private readonly handleShootPointerDown = (event: PointerEvent) => this.onShootPointerDown(event);
+  private readonly handleShootPointerUp = (event: PointerEvent) => this.onShootPointerUp(event);
   private isFullscreen = false;
 
   constructor(root: HTMLElement) {
@@ -170,6 +192,14 @@ export class DfvpGame {
               <div class="player-list" id="playerList"></div>
             </div>
           </div>
+          <div class="touch-controls" id="touchControls" aria-hidden="true">
+            <div class="touch-controls__movement" id="joystickSurface">
+              <div class="touch-joystick" id="joystickBase">
+                <div class="touch-joystick__thumb" id="joystickThumb"></div>
+              </div>
+            </div>
+            <button class="touch-button" id="shootButton" type="button">Shoot</button>
+          </div>
         </section>
       </div>
     `;
@@ -205,6 +235,11 @@ export class DfvpGame {
     this.canvasFrame = this.root.querySelector('#canvasFrame') as HTMLElement;
     this.menuToggleButton = this.root.querySelector('#toggleMenu') as HTMLButtonElement;
     this.loadingOverlay = this.root.querySelector('#canvasLoading') as HTMLElement;
+    this.touchControlsRoot = this.root.querySelector('#touchControls') as HTMLElement | null;
+    this.joystickSurface = this.root.querySelector('#joystickSurface') as HTMLElement | null;
+    this.joystickBase = this.root.querySelector('#joystickBase') as HTMLElement | null;
+    this.joystickThumb = this.root.querySelector('#joystickThumb') as HTMLElement | null;
+    this.shootButton = this.root.querySelector('#shootButton') as HTMLButtonElement | null;
 
     const suggestedServer = this.defaultServerUrl();
     if (suggestedServer && !this.serverField.value) {
@@ -236,6 +271,274 @@ export class DfvpGame {
       this.cleanupConnection();
       this.stopSoloRun();
     });
+
+    this.initializeTouchControls();
+  }
+
+  private initializeTouchControls(): void {
+    if (!this.touchControlsRoot) {
+      return;
+    }
+
+    this.touchControlsRoot.addEventListener('contextmenu', (event) => event.preventDefault());
+
+    if (window.matchMedia) {
+      this.pointerCoarseQuery = window.matchMedia('(pointer: coarse)');
+      if (typeof this.pointerCoarseQuery.addEventListener === 'function') {
+        this.pointerCoarseQuery.addEventListener('change', this.handlePointerMediaChange);
+      } else if (typeof this.pointerCoarseQuery.addListener === 'function') {
+        this.pointerCoarseQuery.addListener(this.handlePointerMediaChange);
+      }
+    }
+
+    window.addEventListener('resize', this.handleViewportChange);
+    window.addEventListener('orientationchange', this.handleViewportChange);
+
+    if (this.joystickSurface) {
+      this.joystickSurface.addEventListener('pointerdown', this.handleJoystickPointerDown);
+      this.joystickSurface.addEventListener('pointermove', this.handleJoystickPointerMove);
+      this.joystickSurface.addEventListener('pointerup', this.handleJoystickPointerUp);
+      this.joystickSurface.addEventListener('pointercancel', this.handleJoystickPointerUp);
+      this.joystickSurface.addEventListener('pointerleave', this.handleJoystickPointerUp);
+    }
+
+    if (this.shootButton) {
+      this.shootButton.addEventListener('pointerdown', this.handleShootPointerDown);
+      this.shootButton.addEventListener('pointerup', this.handleShootPointerUp);
+      this.shootButton.addEventListener('pointercancel', this.handleShootPointerUp);
+      this.shootButton.addEventListener('pointerleave', this.handleShootPointerUp);
+    }
+
+    this.evaluateTouchControls();
+  }
+
+  private evaluateTouchControls(): void {
+    this.joystickBounds = null;
+    if (this.touchControlsActive) {
+      this.resetJoystick(false);
+    }
+    const shouldEnable = this.shouldUseTouchControls();
+    this.setTouchControlsActive(shouldEnable);
+  }
+
+  private shouldUseTouchControls(): boolean {
+    const coarsePointer = this.pointerCoarseQuery?.matches ?? false;
+    const touchPoints = typeof navigator !== 'undefined' ? navigator.maxTouchPoints ?? 0 : 0;
+    return coarsePointer || touchPoints > 0 || window.innerWidth <= 720;
+  }
+
+  private setTouchControlsActive(active: boolean): void {
+    if (!this.touchControlsRoot) {
+      return;
+    }
+
+    if (this.touchControlsActive === active) {
+      return;
+    }
+
+    this.touchControlsActive = active;
+
+    if (!active) {
+      this.resetJoystick(true);
+      this.setTouchFire(false);
+    } else {
+      this.resetJoystick(false);
+    }
+
+    this.updateTouchControlsVisibility();
+    this.recomputeInputState();
+  }
+
+  private updateTouchControlsVisibility(): void {
+    if (!this.touchControlsRoot) {
+      return;
+    }
+
+    const visible = this.touchControlsActive && this.currentScreen === 'game';
+    this.touchControlsRoot.classList.toggle('touch-controls--visible', visible);
+    this.touchControlsRoot.setAttribute('aria-hidden', visible ? 'false' : 'true');
+  }
+
+  private recomputeInputState(): void {
+    const combined = this.combineInputStates(this.keyboardInput, this.touchInput);
+    if (this.inputsEqual(combined, this.lastInput)) {
+      return;
+    }
+    this.lastInput = combined;
+    this.updateInputState();
+  }
+
+  private combineInputStates(first: InputState, second: InputState): InputState {
+    return {
+      w: first.w || second.w,
+      a: first.a || second.a,
+      s: first.s || second.s,
+      d: first.d || second.d,
+      l: first.l || second.l,
+    };
+  }
+
+  private onJoystickPointerDown(event: PointerEvent): void {
+    if (!this.touchControlsActive || !this.joystickSurface || !this.joystickBase) {
+      return;
+    }
+
+    this.joystickPointerId = event.pointerId;
+    try {
+      this.joystickSurface.setPointerCapture(event.pointerId);
+    } catch {
+      // no-op if pointer capture is unsupported
+    }
+    this.joystickBounds = this.joystickBase.getBoundingClientRect();
+    this.updateJoystickFromPointer(event);
+    event.preventDefault();
+  }
+
+  private onJoystickPointerMove(event: PointerEvent): void {
+    if (!this.touchControlsActive || this.joystickPointerId !== event.pointerId) {
+      return;
+    }
+
+    this.updateJoystickFromPointer(event);
+    event.preventDefault();
+  }
+
+  private onJoystickPointerUp(event: PointerEvent): void {
+    if (this.joystickPointerId !== event.pointerId) {
+      return;
+    }
+
+    if (this.joystickSurface) {
+      try {
+        this.joystickSurface.releasePointerCapture(event.pointerId);
+      } catch {
+        // ignore unsupported release
+      }
+    }
+
+    this.joystickPointerId = null;
+    this.joystickBounds = null;
+    this.resetJoystick();
+    event.preventDefault();
+  }
+
+  private updateJoystickFromPointer(event: PointerEvent): void {
+    if (!this.joystickThumb || !this.joystickBase) {
+      return;
+    }
+
+    if (!this.joystickBounds) {
+      this.joystickBounds = this.joystickBase.getBoundingClientRect();
+    }
+
+    const bounds = this.joystickBounds;
+    const centerX = bounds.left + bounds.width / 2;
+    const centerY = bounds.top + bounds.height / 2;
+    const dx = event.clientX - centerX;
+    const dy = event.clientY - centerY;
+    const radius = Math.min(bounds.width, bounds.height) / 2;
+
+    if (radius <= 0) {
+      return;
+    }
+
+    const distance = Math.min(Math.hypot(dx, dy), radius);
+    const angle = distance === 0 ? 0 : Math.atan2(dy, dx);
+    const offsetX = Math.cos(angle) * distance;
+    const offsetY = Math.sin(angle) * distance;
+
+    this.joystickThumb.style.setProperty('--offset-x', `${offsetX}px`);
+    this.joystickThumb.style.setProperty('--offset-y', `${offsetY}px`);
+
+    this.applyJoystickVector(offsetX / radius, offsetY / radius);
+  }
+
+  private applyJoystickVector(normalizedX: number, normalizedY: number): void {
+    const threshold = 0.3;
+    const next: InputState = {
+      ...this.touchInput,
+      w: normalizedY < -threshold,
+      s: normalizedY > threshold,
+      a: normalizedX < -threshold,
+      d: normalizedX > threshold,
+    };
+
+    if (!this.inputsEqual(next, this.touchInput)) {
+      this.touchInput = next;
+      this.recomputeInputState();
+    }
+  }
+
+  private resetJoystick(clearInput = true): void {
+    if (this.joystickThumb) {
+      this.joystickThumb.style.setProperty('--offset-x', '0px');
+      this.joystickThumb.style.setProperty('--offset-y', '0px');
+    }
+
+    if (!clearInput) {
+      return;
+    }
+
+    if (!this.touchInput.w && !this.touchInput.a && !this.touchInput.s && !this.touchInput.d) {
+      return;
+    }
+
+    this.touchInput = {
+      ...this.touchInput,
+      w: false,
+      a: false,
+      s: false,
+      d: false,
+    };
+    this.recomputeInputState();
+  }
+
+  private onShootPointerDown(event: PointerEvent): void {
+    if (!this.touchControlsActive) {
+      return;
+    }
+
+    event.preventDefault();
+
+    if (this.shootButton && typeof this.shootButton.setPointerCapture === 'function') {
+      try {
+        this.shootButton.setPointerCapture(event.pointerId);
+      } catch {
+        // ignore unsupported capture
+      }
+    }
+
+    this.setTouchFire(true);
+  }
+
+  private onShootPointerUp(event: PointerEvent): void {
+    if (!this.touchControlsActive) {
+      return;
+    }
+
+    event.preventDefault();
+
+    if (this.shootButton && typeof this.shootButton.releasePointerCapture === 'function') {
+      try {
+        this.shootButton.releasePointerCapture(event.pointerId);
+      } catch {
+        // ignore unsupported release
+      }
+    }
+
+    this.setTouchFire(false);
+  }
+
+  private setTouchFire(active: boolean): void {
+    if (this.touchInput.l === active) {
+      return;
+    }
+
+    this.touchInput = {
+      ...this.touchInput,
+      l: active,
+    };
+    this.recomputeInputState();
   }
 
   private async initializePixi(): Promise<void> {
@@ -328,7 +631,7 @@ export class DfvpGame {
     this.soloActive = true;
     this.setFullscreenMode(true);
     this.soloRunner.start();
-    this.updateInputState();
+    this.updateInputState(true);
   }
 
   private stopSoloRun(): void {
@@ -539,6 +842,7 @@ export class DfvpGame {
     }
     this.playerId = null;
     this.roomCode = null;
+    this.sentInput = { ...this.lastInput };
     this.setFullscreenMode(false);
   }
 
@@ -562,22 +866,22 @@ export class DfvpGame {
       return;
     }
 
-    if (this.lastInput[binding] === pressed) {
+    if (this.keyboardInput[binding] === pressed) {
       return;
     }
 
-    this.lastInput = { ...this.lastInput, [binding]: pressed };
-    this.updateInputState();
+    this.keyboardInput = { ...this.keyboardInput, [binding]: pressed };
+    this.recomputeInputState();
     event.preventDefault();
   }
 
-  private updateInputState(): void {
+  private updateInputState(force = false): void {
     if (this.soloActive) {
       this.soloRunner?.setInput(this.lastInput);
     }
 
     if (this.websocket && this.websocket.readyState === WebSocket.OPEN) {
-      if (!this.inputsEqual(this.lastInput, this.sentInput)) {
+      if (force || !this.inputsEqual(this.lastInput, this.sentInput)) {
         this.websocket.send(JSON.stringify({ type: 'input', keys: this.lastInput }));
         this.sentInput = { ...this.lastInput };
       }
@@ -669,6 +973,7 @@ export class DfvpGame {
         element.classList.remove('active');
       }
     });
+    this.updateTouchControlsVisibility();
   }
 
   private setStatus(message: string, tone: 'default' | 'success' | 'error' = 'default'): void {

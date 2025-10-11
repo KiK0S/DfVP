@@ -76,6 +76,23 @@ npx dfvp-room --public
 - `--public` exposes the room on all interfaces (`0.0.0.0`) so friends on the same network can join.
 - Use `--port 4000` (or any port) to override the default `3000`.
 - Pass `--static-dir path/to/dist` if you also want to serve a local client build.
+- Supply trusted TLS assets to expose a secure `wss://` endpoint (required when the client runs from `https://` origins such as GitHub Pages):
+
+  ```bash
+  npx dfvp-room --public \
+    --tls-key /path/to/privkey.pem \
+    --tls-cert /path/to/fullchain.pem
+  ```
+
+  The certificate must be trusted by browsers (for example, issued via Let’s Encrypt for your domain). When TLS is provided the CLI automatically switches to HTTPS/WSS.
+
+- To avoid managing certificates, you can piggyback on [Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/) (or any quick tunnel that ships a trusted cert). Install `cloudflared` locally, then run:
+
+  ```bash
+  npx dfvp-room --public --cloudflared
+  ```
+
+  The CLI spawns `cloudflared tunnel --url http://127.0.0.1:3000` and will print an `https://` / `wss://` hostname once Cloudflare provisions it. Share that URL with remote players; the tunnel automatically forwards traffic to your local room.
 
 While developing locally you can run the same CLI straight from the repository:
 
@@ -146,6 +163,8 @@ After publishing, `npx dfvp-room` will pull the latest version automatically.
 ## Troubleshooting
 
 - **Unable to connect to server** – verify the WebSocket URL (must begin with `ws://` or `wss://`) and ensure the Node server is running
+- **Browser blocks WebSocket** – pages served over HTTPS (e.g. GitHub Pages) can only connect to `wss://` endpoints backed by a trusted TLS certificate. Launch the room with `--tls-key/--tls-cert` or place it behind a secure reverse proxy/tunnel.
+- **Cloudflare tunnel not found** – the `--cloudflared` flag expects the `cloudflared` binary in your `PATH`. Install it from Cloudflare’s downloads or via your package manager.
 - **Assets missing after deployment** – rerun `npm run build`; the workflow copies assets from `client/public`
 - **Controls unresponsive** – the lobby ignores key presses while form inputs are focused; click on the canvas area before playing
 
